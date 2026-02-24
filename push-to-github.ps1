@@ -39,5 +39,5 @@ if ($LASTEXITCODE -ne 0) {
 git branch -M main
 Write-Host "Pushing to origin main..."
 git push -u origin main
-Write-Host "Done. Your project is at https://github.com/novarides/Nova-Rides-"
+Write-Host "Done. Your project is at https://github.com/novarides/Nova-Rides"
 Write-Host "Add env vars in Vercel and redeploy if needed."

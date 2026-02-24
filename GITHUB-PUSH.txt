@@ -1,0 +1,15 @@
+Push this project to https://github.com/novarides/Nova-Rides
+
+Run in PowerShell (from any folder):
+
+  & "C:\Users\dieko\NOVA RIDES 2\push-to-github.ps1"
+
+Or open a terminal in the project folder, then:
+
+  .\push-to-github.ps1
+
+If you get an execution policy error, run first:
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+The script will: init git (if needed), set remote to Nova-Rides.git, add all files, commit, and push to main.
+You may be prompted to sign in to GitHub.
