@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --nova-bg: #0a0e17;
+  --nova-surface: #111827;
+  --nova-card: #1a2234;
+  --nova-border: #2d3a4f;
+  --nova-accent: #f59e0b;
+  --nova-accent-dim: #d97706;
+  --nova-muted: #64748b;
+  --nova-text: #f1f5f9;
+  --nova-text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--nova-bg);
+  color: var(--nova-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-5 py-2.5 rounded-lg transition;
+  }
+  .btn-secondary {
+    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 font-medium px-5 py-2.5 rounded-lg border border-slate-600 transition;
+  }
+  .input-field {
+    @apply w-full bg-slate-800/80 border border-slate-600 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition;
+  }
+  .card {
+    @apply bg-slate-800/60 border border-slate-700/80 rounded-xl overflow-hidden;
+  }
+}

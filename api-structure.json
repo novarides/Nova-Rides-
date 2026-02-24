@@ -1,0 +1,117 @@
+{
+  "platform": "Nova Rides",
+  "description": "Peer-to-peer car sharing – JSON API structure (MVP)",
+  "endpoints": {
+    "auth": {
+      "POST /api/auth/register": "Register (email, password, firstName, lastName, role, acceptedTerms, acceptedPrivacy)",
+      "POST /api/auth/login": "Login (email, password)",
+      "POST /api/auth/logout": "Logout",
+      "GET /api/auth/me": "Current user (requires auth)"
+    },
+    "vehicles": {
+      "GET /api/vehicles": "List vehicles (?hostId, ?status)",
+      "GET /api/vehicles/[id]": "Get vehicle by id",
+      "POST /api/vehicles": "Create vehicle (host/admin)",
+      "PATCH /api/vehicles/[id]": "Update vehicle",
+      "DELETE /api/vehicles/[id]": "Delete vehicle"
+    },
+    "search": {
+      "GET /api/search": "Search (?city, startDate, endDate, minPrice, maxPrice, vehicleType, sort)"
+    },
+    "bookings": {
+      "GET /api/bookings": "My bookings (?as=host|renter)",
+      "GET /api/bookings/[id]": "Get booking",
+      "POST /api/bookings": "Create booking (vehicleId, startDate, endDate)",
+      "PATCH /api/bookings/[id]": "Update (e.g. status: confirmed|rejected|cancelled)"
+    },
+    "reviews": {
+      "GET /api/reviews": "List (?vehicleId, ?userId)",
+      "POST /api/reviews": "Create (bookingId, revieweeId, rating, comment)"
+    },
+    "payments": {
+      "POST /api/payments/authorize": "Authorize/capture payment (bookingId, amount, currency)"
+    }
+  },
+  "models": {
+    "user": {
+      "id": "uuid",
+      "email": "string",
+      "phone": "string (optional)",
+      "role": "host | renter | admin",
+      "verified": "boolean",
+      "identityVerified": "boolean",
+      "licenseVerified": "boolean",
+      "hostVerifiedBadge": "boolean (optional)",
+      "firstName": "string",
+      "lastName": "string",
+      "createdAt": "ISO date",
+      "updatedAt": "ISO date",
+      "acceptedTerms": "boolean",
+      "acceptedPrivacy": "boolean"
+    },
+    "vehicle": {
+      "id": "uuid",
+      "hostId": "uuid",
+      "title": "string",
+      "description": "string",
+      "year": "number",
+      "make": "string",
+      "model": "string",
+      "mileage": "number",
+      "vehicleClass": "economy | compact | midsize | fullsize | luxury | suv | van | sports | electric",
+      "pricePerDay": "number",
+      "pricePerWeek": "number (optional)",
+      "currency": "string (e.g. NGN)",
+      "images": "string[]",
+      "location": { "city": "string", "lat": "number", "lng": "number" },
+      "availability": "string[] (ISO dates)",
+      "minRentalDays": "number",
+      "bookingType": "instant | approval",
+      "featured": "boolean",
+      "promoted": "boolean",
+      "rating": "number (optional)",
+      "reviewCount": "number (optional)",
+      "status": "active | inactive | pending_approval",
+      "createdAt": "ISO date",
+      "updatedAt": "ISO date"
+    },
+    "booking": {
+      "id": "uuid",
+      "vehicleId": "uuid",
+      "renterId": "uuid",
+      "hostId": "uuid",
+      "startDate": "ISO date",
+      "endDate": "ISO date",
+      "totalPrice": "number",
+      "securityDeposit": "number",
+      "status": "pending | confirmed | rejected | cancelled | completed | in_progress",
+      "paymentStatus": "pending | authorized | paid | refunded | failed",
+      "bookingType": "instant | approval",
+      "createdAt": "ISO date",
+      "updatedAt": "ISO date"
+    }
+  },
+  "example_responses": {
+    "user": {
+      "id": "uuid",
+      "role": "host",
+      "verified": true
+    },
+    "vehicle": {
+      "id": "uuid",
+      "title": "Mercedes AMG GLE 63S",
+      "price_per_day": 150000,
+      "availability": ["2026-02-10", "2026-02-15"],
+      "location": {
+        "city": "Lagos",
+        "lat": 6.5244,
+        "lng": 3.3792
+      }
+    },
+    "booking": {
+      "status": "confirmed",
+      "total_price": 450000,
+      "payment_status": "paid"
+    }
+  }
+}

@@ -1,0 +1,381 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+interface Profile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  role: string;
+  verified: boolean;
+  avatar?: string;
+  identityVerified: boolean;
+  licenseVerified: boolean;
+  licenseExpiryDate?: string;
+  identityDocFront?: string;
+  identityDocBack?: string;
+  licenseDocFront?: string;
+  licenseDocBack?: string;
+}
+
+export default function ProfilePage() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [form, setForm] = useState({ firstName: "", lastName: "", phone: "" });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [idFront, setIdFront] = useState<File | null>(null);
+  const [idBack, setIdBack] = useState<File | null>(null);
+  const [licenseFront, setLicenseFront] = useState<File | null>(null);
+  const [licenseBack, setLicenseBack] = useState<File | null>(null);
+  const [licenseExpiry, setLicenseExpiry] = useState("");
+  const [docUploading, setDocUploading] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.success || !d.data?.user) {
+          window.location.href = "/login?redirect=/profile";
+          return;
+        }
+        fetch("/api/user/profile", { credentials: "include" })
+          .then((r2) => r2.json())
+          .then((d2) => {
+            if (d2.success && d2.data) {
+              setProfile(d2.data);
+              setForm({
+                firstName: d2.data.firstName || "",
+                lastName: d2.data.lastName || "",
+                phone: d2.data.phone || "",
+              });
+              setAvatarPreview(d2.data.avatar || null);
+            }
+          })
+          .finally(() => setLoading(false));
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
+    setError("");
+    setMessage("");
+    setSaving(true);
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone || "",
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Update failed");
+        return;
+      }
+      setProfile(data.data);
+      setMessage("Profile updated.");
+    } catch {
+      setError("Something went wrong.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please choose an image (JPEG, PNG, GIF, WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be under 5MB.");
+      return;
+    }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+    setError("");
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+    setError("");
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.set("avatar", avatarFile);
+      const res = await fetch("/api/user/avatar", {
+        method: "POST",
+        credentials: "include",
+        body: fd,
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Upload failed");
+        return;
+      }
+      setProfile((p) => (p ? { ...p, avatar: data.data.avatar } : null));
+      setAvatarPreview(data.data.avatar);
+      setAvatarFile(null);
+      setMessage("Photo updated.");
+    } catch {
+      setError("Upload failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setError("");
+    setResending(true);
+    try {
+      const res = await fetch("/api/auth/resend-verification", { method: "POST", credentials: "include" });
+      const data = await res.json();
+      if (data.success) {
+        setMessage(data.data?.sent ? "Verification email sent. Check your inbox." : "Email already verified.");
+      } else {
+        setError(data.error || "Could not send email");
+      }
+    } catch {
+      setError("Something went wrong.");
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const handleIdentityUpload = async () => {
+    if (!idFront || !idBack) return;
+    setError("");
+    setDocUploading("identity");
+    try {
+      const fd = new FormData();
+      fd.set("identityFront", idFront);
+      fd.set("identityBack", idBack);
+      const res = await fetch("/api/user/documents/identity", { method: "POST", credentials: "include", body: fd });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Upload failed");
+        return;
+      }
+      setProfile((p) => (p ? { ...p, identityVerified: true } : null));
+      setIdFront(null);
+      setIdBack(null);
+      setMessage("Government ID uploaded and verified.");
+    } catch {
+      setError("Upload failed.");
+    } finally {
+      setDocUploading(null);
+    }
+  };
+
+  const handleLicenseUpload = async () => {
+    if (!licenseFront || !licenseBack || !licenseExpiry) return;
+    setError("");
+    setDocUploading("license");
+    try {
+      const fd = new FormData();
+      fd.set("licenseFront", licenseFront);
+      fd.set("licenseBack", licenseBack);
+      fd.set("expiryDate", licenseExpiry);
+      const res = await fetch("/api/user/documents/license", { method: "POST", credentials: "include", body: fd });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Upload failed");
+        return;
+      }
+      setProfile((p) => (p ? { ...p, licenseVerified: data.data.licenseVerified, licenseExpiryDate: data.data.licenseExpiryDate } : null));
+      setLicenseFront(null);
+      setLicenseBack(null);
+      setLicenseExpiry("");
+      setMessage(data.data.licenseVerified ? "Driver's licence uploaded and verified." : "Driver's licence uploaded. It has expired – upload a new one to book again.");
+    } catch {
+      setError("Upload failed.");
+    } finally {
+      setDocUploading(null);
+    }
+  };
+
+  const licenceExpired = profile.licenseExpiryDate ? new Date(profile.licenseExpiryDate) <= new Date() : false;
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!profile) return null;
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      <h1 className="font-display text-2xl font-bold text-white">Profile</h1>
+      <p className="mt-1 text-slate-400">Manage your account and photo.</p>
+
+      {!profile.verified && (
+        <div className="mt-6 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+          <p className="text-sm text-amber-200">Verify your email to access all features.</p>
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={resending}
+            className="mt-2 text-sm font-medium text-amber-400 hover:text-amber-300 disabled:opacity-50"
+          >
+            {resending ? "Sending…" : "Resend verification email"}
+          </button>
+        </div>
+      )}
+
+      {licenceExpired && (
+        <div className="mt-6 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3">
+          <p className="text-sm text-red-200">Your driver's licence has expired. Upload a new one below to book cars again.</p>
+        </div>
+      )}
+
+      <div className="card mt-6 p-6">
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+          <div className="shrink-0">
+            <div className="relative h-24 w-24 overflow-hidden rounded-full bg-slate-700 ring-2 ring-slate-600">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-slate-400">
+                  {profile.firstName[0]}
+                  {profile.lastName[0]}
+                </span>
+              )}
+            </div>
+            <div className="mt-3 flex flex-col gap-2">
+              <label className="cursor-pointer text-center text-sm text-amber-400 hover:text-amber-300">
+                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handleAvatarChange} />
+                Choose photo
+              </label>
+              {avatarFile && (
+                <button
+                  type="button"
+                  onClick={handleAvatarUpload}
+                  disabled={saving}
+                  className="rounded bg-slate-600 px-3 py-1 text-xs font-medium text-white hover:bg-slate-500 disabled:opacity-50"
+                >
+                  {saving ? "Uploading…" : "Upload"}
+                </button>
+              )}
+            </div>
+          </div>
+          <form onSubmit={handleSubmit} className="min-w-0 flex-1 space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-400">Email</label>
+              <p className="text-white">{profile.email}</p>
+              {profile.verified && <span className="text-xs text-green-400">Verified</span>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-400">First name</label>
+                <input
+                  type="text"
+                  value={form.firstName}
+                  onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
+                  className="input-field"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-400">Last name</label>
+                <input
+                  type="text"
+                  value={form.lastName}
+                  onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+                  className="input-field"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-400">Phone</label>
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                className="input-field"
+                placeholder="+234..."
+              />
+            </div>
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            {message && <p className="text-sm text-green-400">{message}</p>}
+            <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
+              {saving ? "Saving…" : "Save profile"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="card mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-white">Verification documents</h2>
+        <p className="mt-1 text-sm text-slate-400">Government-issued ID and driver's licence (front and back). Required to book cars.</p>
+
+        <div className="mt-6 space-y-6">
+          <div>
+            <h3 className="text-sm font-medium text-slate-300">Government-issued ID</h3>
+            {profile.identityVerified ? (
+              <p className="mt-1 text-sm text-green-400">✓ ID verified</p>
+            ) : (
+              <div className="mt-2 flex flex-wrap items-end gap-3">
+                <label className="text-sm text-slate-400">
+                  Front: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setIdFront(e.target.files?.[0] ?? null)} />
+                </label>
+                <label className="text-sm text-slate-400">
+                  Back: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setIdBack(e.target.files?.[0] ?? null)} />
+                </label>
+                <button type="button" onClick={handleIdentityUpload} disabled={!idFront || !idBack || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                  {docUploading === "identity" ? "Uploading…" : "Upload ID"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-slate-300">Driver's licence</h3>
+            {profile.licenseExpiryDate && (
+              <p className="mt-1 text-sm text-slate-400">
+                Expiry: {new Date(profile.licenseExpiryDate).toLocaleDateString()}
+                {profile.licenseVerified ? <span className="ml-2 text-green-400">✓ Valid</span> : <span className="ml-2 text-red-400">Expired</span>}
+              </p>
+            )}
+            <div className="mt-2 flex flex-wrap items-end gap-3">
+              <label className="text-sm text-slate-400">
+                Front: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setLicenseFront(e.target.files?.[0] ?? null)} />
+              </label>
+              <label className="text-sm text-slate-400">
+                Back: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setLicenseBack(e.target.files?.[0] ?? null)} />
+              </label>
+              <label className="text-sm text-slate-400">
+                Expiry date: <input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} className="input-field ml-1 inline-block w-auto" />
+              </label>
+              <button type="button" onClick={handleLicenseUpload} disabled={!licenseFront || !licenseBack || !licenseExpiry || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                {docUploading === "license" ? "Uploading…" : profile.licenseDocFront ? "Update licence" : "Upload licence"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-6">
+        <Link href="/" className="text-sm text-slate-400 hover:text-white">← Back to home</Link>
+      </p>
+    </div>
+  );
+}
