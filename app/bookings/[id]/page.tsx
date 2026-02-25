@@ -59,11 +59,16 @@ export default function BookingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [booking, setBooking] = useState<Booking | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig>({ paystack: false, stripe: false });
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
