@@ -1,11 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { Booking } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
 import { differenceInDays, parseISO } from "date-fns";
 
-export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Booking[]>>> {
+function getRenterSummary(store: ReturnType<typeof getStore>, renterId: string) {
+  const renter = store.users.find((u) => u.id === renterId);
+  if (!renter) return undefined;
+  const reviewsAboutRenter = store.reviews.filter((r) => r.revieweeId === renterId);
+  const reviewCount = reviewsAboutRenter.length;
+  const rating = reviewCount > 0
+    ? reviewsAboutRenter.reduce((s, r) => s + r.rating, 0) / reviewCount
+    : 0;
+  return {
+    id: renter.id,
+    firstName: renter.firstName,
+    lastName: renter.lastName,
+    rating: Math.round(rating * 10) / 10,
+    reviewCount,
+  };
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Booking[] | (Booking & { renterSummary?: ReturnType<typeof getRenterSummary>; hasHostReviewedGuest?: boolean })[]>>> {
   try {
     const { user } = await requireAuth();
     const { searchParams } = new URL(request.url);
@@ -14,6 +31,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     let list = store.bookings.filter(
       (b) => (as === "host" ? b.hostId === user.id : as === "renter" ? b.renterId === user.id : (b.renterId === user.id || b.hostId === user.id))
     );
+    if (as === "host") {
+      list = list.map((b) => {
+        const renterSummary = getRenterSummary(store, b.renterId);
+        const hasHostReviewedGuest = store.reviews.some((r) => r.bookingId === b.id && r.reviewerId === b.hostId);
+        const vehicle = store.vehicles.find((v) => v.id === b.vehicleId);
+        return { ...b, renterSummary, hasHostReviewedGuest, vehicleTitle: vehicle?.title };
+      }) as (Booking & { renterSummary?: ReturnType<typeof getRenterSummary>; hasHostReviewedGuest?: boolean; vehicleTitle?: string })[];
+    }
     return NextResponse.json({ success: true, data: list });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -82,6 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     };
     store.bookings.push(booking);
     setStore(store);
+    persistStore();
     return NextResponse.json({ success: true, data: booking });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

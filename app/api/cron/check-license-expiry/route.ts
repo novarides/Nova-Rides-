@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore } from "@/lib/store";
+import { getStore, setStore, persistStore } from "@/lib/store";
 import { sendLicenseExpiryReminder } from "@/lib/email";
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
   }
 
   setStore(store);
+  persistStore();
   return NextResponse.json({
     success: true,
     remindersSent,

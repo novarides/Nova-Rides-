@@ -4,9 +4,27 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+interface RenterSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  rating: number;
+  reviewCount: number;
+}
+
+interface HostSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  rating: number;
+  reviewCount: number;
+}
+
 interface Booking {
   id: string;
   vehicleId: string;
+  hostId?: string;
+  renterId?: string;
   startDate: string;
   endDate: string;
   totalPrice: number;
@@ -14,6 +32,11 @@ interface Booking {
   status: string;
   paymentStatus: string;
   bookingType: string;
+  renterSummary?: RenterSummary;
+  hasHostReviewedGuest?: boolean;
+  reviewsAboutRenter?: { rating: number; comment: string; createdAt: string }[];
+  hostSummary?: HostSummary;
+  hasRenterReviewedHost?: boolean;
 }
 
 interface Vehicle {
@@ -27,6 +50,11 @@ interface PaymentConfig {
   stripe: boolean;
 }
 
+interface CurrentUser {
+  id: string;
+  role: string;
+}
+
 export default function BookingDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -36,6 +64,12 @@ export default function BookingDetailPage() {
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig>({ paystack: false, stripe: false });
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => d.success && d.data?.user && setUser({ id: d.data.user.id, role: d.data.user.role }));
+  }, []);
 
   useEffect(() => {
     fetch("/api/bookings/" + id, { credentials: "include" })
@@ -62,6 +96,47 @@ export default function BookingDetailPage() {
   const totalAmount = booking ? booking.totalPrice + booking.securityDeposit : 0;
   const canPay = booking && booking.paymentStatus !== "paid" && (booking.status === "confirmed" || booking.bookingType === "instant");
   const isPending = booking?.status === "pending";
+  const isHost = user && booking && booking.hostId === user.id;
+
+  const handleAccept = async () => {
+    if (!booking) return;
+    const res = await fetch("/api/bookings/" + booking.id, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: "confirmed" }) });
+    if (res.ok) { const d = await res.json(); if (d.success) setBooking(d.data); }
+  };
+
+  const handleDecline = async () => {
+    if (!booking) return;
+    const res = await fetch("/api/bookings/" + booking.id, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: "rejected" }) });
+    if (res.ok) { const d = await res.json(); if (d.success) setBooking(d.data); }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!booking?.renterId) return;
+    setReviewError("");
+    setSubmittingReview(true);
+    try {
+      const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ bookingId: booking.id, revieweeId: booking.renterId, rating: reviewRating, comment: reviewComment.trim() }) });
+      const data = await res.json();
+      if (!data.success) { setReviewError(data.error || "Failed"); return; }
+      setBooking((b) => (b ? { ...b, hasHostReviewedGuest: true } : null));
+      setReviewComment("");
+    } catch { setReviewError("Something went wrong."); }
+    finally { setSubmittingReview(false); }
+  };
+
+  const handleSubmitHostReview = async () => {
+    if (!booking?.hostId) return;
+    setReviewError("");
+    setSubmittingReview(true);
+    try {
+      const res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ bookingId: booking.id, revieweeId: booking.hostId, rating: reviewRating, comment: reviewComment.trim() }) });
+      const data = await res.json();
+      if (!data.success) { setReviewError(data.error || "Failed"); return; }
+      setBooking((b) => (b ? { ...b, hasRenterReviewedHost: true } : null));
+      setReviewComment("");
+    } catch { setReviewError("Something went wrong."); }
+    finally { setSubmittingReview(false); }
+  };
 
   const handlePaystack = async () => {
     if (!booking) return;
@@ -149,12 +224,28 @@ export default function BookingDetailPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <Link href="/search" className="text-sm text-slate-400 hover:text-white">← Back to search</Link>
+      <Link href={isHost ? "/dashboard/host" : "/search"} className="text-sm text-slate-400 hover:text-white">← Back to {isHost ? "host dashboard" : "search"}</Link>
       <div className="card mt-6 p-6">
         <h1 className="font-display text-xl font-bold text-white">
-          {isPending ? "Booking requested" : "Booking confirmed"}
+          {isHost ? (isPending ? "Booking request" : "Booking details") : isPending ? "Booking requested" : "Booking confirmed"}
         </h1>
         {vehicle && <p className="mt-1 text-slate-400">{vehicle.title}</p>}
+        {isHost && booking?.renterSummary && (
+          <div className="mt-3 rounded-lg border border-slate-600 bg-slate-800/30 p-3">
+            <p className="text-sm font-medium text-white">Guest: {booking.renterSummary.firstName} {booking.renterSummary.lastName}</p>
+            <p className="text-sm text-slate-400">
+              {booking.renterSummary.reviewCount > 0 ? <>★ {booking.renterSummary.rating} ({booking.renterSummary.reviewCount} reviews)</> : "No reviews yet"}
+            </p>
+            {booking.reviewsAboutRenter && booking.reviewsAboutRenter.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-slate-500">Reviews from other hosts</p>
+                {booking.reviewsAboutRenter.slice(0, 3).map((r, i) => (
+                  <p key={i} className="text-xs text-slate-300">★ {r.rating} — {r.comment || "—"}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <dl className="mt-6 grid grid-cols-2 gap-4">
           <div>
             <dt className="text-xs text-slate-500">Start</dt>
@@ -184,10 +275,50 @@ export default function BookingDetailPage() {
           </div>
         </dl>
 
-        {isPending && (
+        {isPending && !isHost && (
           <p className="mt-6 rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-3 text-sm text-amber-200">
             Waiting for the host to confirm your request. You’ll be able to pay once it’s confirmed.
           </p>
+        )}
+
+        {isHost && isPending && (
+          <div className="mt-6 flex gap-3">
+            <button type="button" onClick={handleAccept} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">Accept booking</button>
+            <button type="button" onClick={handleDecline} className="rounded-lg bg-red-600/80 px-4 py-2 text-sm font-medium text-white hover:bg-red-600">Decline</button>
+          </div>
+        )}
+
+        {isHost && booking?.status === "completed" && !booking.hasHostReviewedGuest && booking.renterId && (
+          <div className="mt-6 rounded-lg border border-slate-600 bg-slate-800/30 p-4">
+            <h3 className="text-sm font-medium text-white">Rate this guest</h3>
+            <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="input-field mt-2 py-1.5 text-sm">
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} ★</option>)}
+            </select>
+            <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="input-field mt-2 w-full min-h-[80px] text-sm" placeholder="How was this guest? (optional)" />
+            {reviewError && <p className="mt-2 text-sm text-red-400">{reviewError}</p>}
+            <button type="button" onClick={handleSubmitReview} disabled={submittingReview} className="mt-3 rounded bg-amber-600 px-3 py-1.5 text-sm text-white hover:bg-amber-500 disabled:opacity-50">{submittingReview ? "Submitting…" : "Submit review"}</button>
+          </div>
+        )}
+
+        {isHost && booking?.status === "completed" && booking.hasHostReviewedGuest && (
+          <p className="mt-6 text-sm text-green-400">You have reviewed this guest.</p>
+        )}
+
+        {!isHost && booking?.status === "completed" && !booking.hasRenterReviewedHost && booking.hostId && (
+          <div className="mt-6 rounded-lg border border-slate-600 bg-slate-800/30 p-4">
+            <h3 className="text-sm font-medium text-white">Rate this host</h3>
+            <p className="mt-1 text-xs text-slate-400">How was your experience with {booking.hostSummary?.firstName ?? "the host"}?</p>
+            <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="input-field mt-2 py-1.5 text-sm">
+              {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} ★</option>)}
+            </select>
+            <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="input-field mt-2 w-full min-h-[80px] text-sm" placeholder="How was your host? (optional)" />
+            {reviewError && <p className="mt-2 text-sm text-red-400">{reviewError}</p>}
+            <button type="button" onClick={handleSubmitHostReview} disabled={submittingReview} className="mt-3 rounded bg-amber-600 px-3 py-1.5 text-sm text-white hover:bg-amber-500 disabled:opacity-50">{submittingReview ? "Submitting…" : "Submit review"}</button>
+          </div>
+        )}
+
+        {!isHost && booking?.status === "completed" && booking.hasRenterReviewedHost && (
+          <p className="mt-6 text-sm text-green-400">You have reviewed this host.</p>
         )}
 
         {canPay && (

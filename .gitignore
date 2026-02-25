@@ -17,6 +17,9 @@ dist/
 .env.production.local
 .env*.local
 
+# Persisted store (local dev only; do not commit)
+data/store.json
+
 # User uploads (keep folder, ignore uploaded files)
 /public/avatars/*
 !/public/avatars/.gitkeep

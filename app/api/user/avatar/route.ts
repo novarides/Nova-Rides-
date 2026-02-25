@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore } from "@/lib/store";
+import { getStore, setStore, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { ApiResponse } from "@/lib/types";
 import { writeFile, mkdir } from "fs/promises";
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       store.users[idx].avatar = avatarUrl;
       store.users[idx].updatedAt = new Date().toISOString();
       setStore(store);
+      persistStore();
     }
 
     return NextResponse.json({ success: true, data: { avatar: avatarUrl } });

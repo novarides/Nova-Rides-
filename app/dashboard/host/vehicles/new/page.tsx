@@ -4,11 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const VEHICLE_CLASSES = ["economy", "compact", "midsize", "fullsize", "luxury", "suv", "van", "sports", "electric"];
+const MILES_TO_KM = 1.60934;
+const DEFAULT_MILEAGE_MILES = 200;
+const DEFAULT_MILEAGE_KM = Math.round(200 * MILES_TO_KM); // ~322 km
 
 export default function NewVehiclePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [roadworthinessFile, setRoadworthinessFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -25,23 +29,58 @@ export default function NewVehiclePage() {
     location: { city: "", lat: 6.5244, lng: 3.3792 },
     availability: [] as string[],
     images: [] as string[],
+    licensePlate: "",
+    vin: "",
+    color: "",
+    mileagePerDay: DEFAULT_MILEAGE_KM,
+    mileagePerDayUnit: "km" as "km" | "miles",
+    listingInfoCorrect: false,
+    listingPoliciesAgreed: false,
+    listingSignature: "",
   });
+
+  const mileageMiles = form.mileagePerDayUnit === "miles" ? form.mileagePerDay : Math.round((form.mileagePerDay / MILES_TO_KM) * 10) / 10;
+  const mileageKm = form.mileagePerDayUnit === "km" ? form.mileagePerDay : Math.round(form.mileagePerDay * MILES_TO_KM);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!form.listingInfoCorrect || !form.listingPoliciesAgreed) {
+      setError("Please confirm both agreement checkboxes.");
+      return;
+    }
+    if (!form.listingSignature.trim()) {
+      setError("Please sign with your full name.");
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch("/api/vehicles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!data.success) {
-        setError(data.error || "Failed to create listing");
-        return;
+      const payload = {
+        ...form,
+        listingSignedAt: new Date().toISOString(),
+      };
+      if (roadworthinessFile) {
+        const fd = new FormData();
+        fd.set("data", JSON.stringify(payload));
+        fd.set("roadworthiness", roadworthinessFile);
+        const res = await fetch("/api/vehicles", { method: "POST", credentials: "include", body: fd });
+        const data = await res.json();
+        if (!data.success) {
+          setError(data.error || "Failed to create listing");
+          return;
+        }
+      } else {
+        const res = await fetch("/api/vehicles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          setError(data.error || "Failed to create listing");
+          return;
+        }
       }
       router.push("/dashboard/host/vehicles");
       router.refresh();
@@ -115,17 +154,48 @@ export default function NewVehiclePage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Mileage (km)</label>
+            <label className="mb-1 block text-sm font-medium text-slate-400">License plate number</label>
             <input
-              type="number"
-              value={form.mileage || ""}
-              onChange={(e) => setForm((f) => ({ ...f, mileage: Number(e.target.value) || 0 }))}
-              min={0}
+              type="text"
+              value={form.licensePlate}
+              onChange={(e) => setForm((f) => ({ ...f, licensePlate: e.target.value }))}
               className="input-field"
+              placeholder="e.g. ABC 123 XY"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle class</label>
+            <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle Identification Number (VIN)</label>
+            <input
+              type="text"
+              value={form.vin}
+              onChange={(e) => setForm((f) => ({ ...f, vin: e.target.value }))}
+              className="input-field"
+              placeholder="17-character VIN"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle color</label>
+          <input
+            type="text"
+            value={form.color}
+            onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
+            className="input-field"
+            placeholder="e.g. Black, Silver"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle Roadworthiness Certificate</label>
+          <input
+            type="file"
+            accept="image/*,application/pdf"
+            className="input-field text-sm text-slate-300"
+            onChange={(e) => setRoadworthinessFile(e.target.files?.[0] ?? null)}
+          />
+          <p className="mt-1 text-xs text-slate-500">Upload a clear image or PDF of the certificate.</p>
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle class</label>
             <select
               value={form.vehicleClass}
               onChange={(e) => setForm((f) => ({ ...f, vehicleClass: e.target.value as typeof form.vehicleClass }))}
@@ -135,6 +205,42 @@ export default function NewVehiclePage() {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+        </div>
+        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
+          <h3 className="text-sm font-medium text-white">Mileage per day (included)</h3>
+          <p className="mt-1 text-xs text-slate-400">Recommended: 200 miles (~322 km) per day included. Excess mileage may incur fees.</p>
+          <div className="mt-3 flex flex-wrap items-end gap-4">
+            <div>
+              <label className="mb-1 block text-xs text-slate-500">Value</label>
+              <input
+                type="number"
+                value={form.mileagePerDay || ""}
+                onChange={(e) => setForm((f) => ({ ...f, mileagePerDay: Number(e.target.value) || 0 }))}
+                min={1}
+                className="input-field w-28"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-slate-500">Unit</label>
+              <select
+                value={form.mileagePerDayUnit}
+                onChange={(e) => {
+                  const unit = e.target.value as "km" | "miles";
+                  setForm((f) => ({
+                    ...f,
+                    mileagePerDayUnit: unit,
+                    mileagePerDay: unit === "km" ? Math.round((f.mileagePerDay || 0) * (unit === "km" ? 1 : 1 / MILES_TO_KM)) : Math.round((f.mileagePerDay || 0) * MILES_TO_KM * 10) / 10,
+                  }));
+                }}
+                className="input-field"
+              >
+                <option value="km">km</option>
+                <option value="miles">miles</option>
+              </select>
+            </div>
+            <p className="text-sm text-slate-400">
+              = {form.mileagePerDayUnit === "km" ? mileageMiles.toFixed(1) : mileageKm} {form.mileagePerDayUnit === "km" ? "miles" : "km"} per day
+            </p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -194,6 +300,40 @@ export default function NewVehiclePage() {
             placeholder="Lagos"
           />
         </div>
+
+        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
+          <h3 className="text-sm font-medium text-white">4. Agreement & consent</h3>
+          <p className="mt-1 text-xs text-slate-400">Confirm your details and agree to company policies.</p>
+          <label className="mt-4 flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={form.listingInfoCorrect}
+              onChange={(e) => setForm((f) => ({ ...f, listingInfoCorrect: e.target.checked }))}
+              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            />
+            <span className="text-sm text-slate-300">I confirm all the information provided is correct.</span>
+          </label>
+          <label className="mt-3 flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={form.listingPoliciesAgreed}
+              onChange={(e) => setForm((f) => ({ ...f, listingPoliciesAgreed: e.target.checked }))}
+              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            />
+            <span className="text-sm text-slate-300">I agree to abide by the company's driver policies, safety standards, and customer service expectations.</span>
+          </label>
+          <div className="mt-4">
+            <label className="mb-1 block text-sm font-medium text-slate-400">Signature (digital) & date</label>
+            <input
+              type="text"
+              value={form.listingSignature}
+              onChange={(e) => setForm((f) => ({ ...f, listingSignature: e.target.value }))}
+              className="input-field max-w-xs"
+              placeholder="Type your full name to sign"
+            />
+          </div>
+        </div>
+
         {error && <p className="text-sm text-red-400">{error}</p>}
         <div className="flex gap-4">
           <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">

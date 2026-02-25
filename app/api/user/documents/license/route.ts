@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore } from "@/lib/store";
+import { getStore, setStore, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { saveDocument } from "@/lib/documents";
 import { ApiResponse } from "@/lib/types";
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     u.licenseVerified = expiry > new Date();
     u.updatedAt = new Date().toISOString();
     setStore(store);
+    persistStore();
 
     return NextResponse.json({
       success: true,

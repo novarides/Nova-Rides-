@@ -1,6 +1,9 @@
-// In-memory JSON store for MVP. Replace with PostgreSQL/MongoDB for production.
+// In-memory JSON store with optional file persistence for MVP.
+// Data is saved to data/store.json locally so it survives restarts. On Vercel (read-only fs) we fall back to in-memory only.
 import { User, Vehicle, Booking, Review, Message, Transaction } from "./types";
 import { v4 as uuid } from "uuid";
+import { readFile, writeFile, mkdir } from "fs/promises";
+import path from "path";
 
 export interface Store {
   users: User[];
@@ -9,6 +12,20 @@ export interface Store {
   reviews: Review[];
   messages: Message[];
   transactions: Transaction[];
+}
+
+const DATA_DIR = path.join(process.cwd(), "data");
+const STORE_FILE = path.join(DATA_DIR, "store.json");
+
+function getDefaultStore(): Store {
+  return {
+    users: [...defaultUsers],
+    vehicles: [...defaultVehicles],
+    bookings: [],
+    reviews: [],
+    messages: [],
+    transactions: [],
+  };
 }
 
 // Default data for demo
@@ -109,7 +126,40 @@ let store: Store = {
   transactions: [],
 };
 
+let storeLoaded = false;
+
+function loadStoreSync(): void {
+  if (storeLoaded) return;
+  storeLoaded = true;
+  try {
+    if (existsSync(STORE_FILE)) {
+      const raw = readFileSync(STORE_FILE, "utf-8");
+      const data = JSON.parse(raw) as Store;
+      if (Array.isArray(data.users)) store.users = data.users;
+      if (Array.isArray(data.vehicles)) store.vehicles = data.vehicles;
+      if (Array.isArray(data.bookings)) store.bookings = data.bookings;
+      if (Array.isArray(data.reviews)) store.reviews = data.reviews;
+      if (Array.isArray(data.messages)) store.messages = data.messages;
+      if (Array.isArray(data.transactions)) store.transactions = data.transactions;
+    }
+  } catch {
+    // File missing or invalid: keep defaults
+  }
+}
+
+/** Persist store to data/store.json. No-op on Vercel (read-only fs). */
+export function persistStore(): void {
+  loadStoreSync();
+  try {
+    mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(STORE_FILE, JSON.stringify(store, null, 2), "utf-8");
+  } catch {
+    // e.g. read-only filesystem: ignore
+  }
+}
+
 export function getStore(): Store {
+  loadStoreSync();
   return store;
 }
 

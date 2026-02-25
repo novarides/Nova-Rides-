@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { Review } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
@@ -37,6 +37,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     if (booking.renterId !== user.id && booking.hostId !== user.id) {
       return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
+    const alreadyReviewed = store.reviews.some((r) => r.bookingId === bookingId && r.reviewerId === user.id);
+    if (alreadyReviewed) {
+      return NextResponse.json({ success: false, error: "You have already reviewed this booking." }, { status: 400 });
+    }
     const reviewee = revieweeId === booking.hostId ? booking.hostId : booking.renterId;
     if (reviewee !== revieweeId) {
       return NextResponse.json({ success: false, error: "Invalid reviewee" }, { status: 400 });
@@ -52,6 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     };
     store.reviews.push(review);
     setStore(store);
+    persistStore();
     return NextResponse.json({ success: true, data: review });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

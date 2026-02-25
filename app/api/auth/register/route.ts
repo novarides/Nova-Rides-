@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { signToken } from "@/lib/auth";
 import { sendVerificationEmail } from "@/lib/email";
 import { User } from "@/lib/types";
@@ -45,6 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     (user as User & { passwordHash?: string }).passwordHash = hashedPassword;
     store.users.push(user);
     setStore(store);
+    persistStore();
 
     const emailResult = await sendVerificationEmail(email, verifyToken);
     if (!emailResult.ok && emailResult.error) {

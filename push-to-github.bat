@@ -14,10 +14,10 @@ if errorlevel 1 (
 if not exist .git (
     echo Initializing git repository...
     git init
-    git remote add origin https://github.com/novarides/Nova-Rides.git
+    git remote add origin https://github.com/novarides/Nova-Rides-.git
 ) else (
     git remote remove origin 2>nul
-    git remote add origin https://github.com/novarides/Nova-Rides.git
+    git remote add origin https://github.com/novarides/Nova-Rides-.git
 )
 
 echo Staging all files...
@@ -28,5 +28,5 @@ git branch -M main
 echo Pushing to origin main...
 git push -u origin main
 echo.
-echo Done. Project: https://github.com/novarides/Nova-Rides
+echo Done. Project: https://github.com/novarides/Nova-Rides-
 pause

@@ -15,7 +15,7 @@ function getExt(type: string): string {
 
 export async function saveDocument(
   userId: string,
-  docType: "identity" | "license",
+  docType: "identity" | "license" | "passport" | "proofOfAddress",
   side: "front" | "back",
   file: File
 ): Promise<{ url: string } | { error: string }> {
@@ -33,5 +33,29 @@ export async function saveDocument(
   const bytes = await file.arrayBuffer();
   await writeFile(filepath, Buffer.from(bytes));
   const url = `/documents/${userId}/${docType}/${filename}`;
+  return { url };
+}
+
+/** Save a vehicle document (e.g. roadworthiness certificate). Path: documents/{userId}/vehicles/{vehicleId}/{docType}.{ext} */
+export async function saveVehicleDocument(
+  userId: string,
+  vehicleId: string,
+  docType: "roadworthiness",
+  file: File
+): Promise<{ url: string } | { error: string }> {
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { error: "Invalid file type. Use JPEG, PNG, GIF, WebP, or PDF." };
+  }
+  if (file.size > MAX_SIZE) {
+    return { error: "File too large. Max 10MB." };
+  }
+  const ext = file.type === "application/pdf" ? "pdf" : file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : file.type === "image/gif" ? "gif" : "webp";
+  const filename = `${docType}.${ext}`;
+  const dir = path.join(process.cwd(), "public", "documents", userId, "vehicles", vehicleId);
+  await mkdir(dir, { recursive: true });
+  const filepath = path.join(dir, filename);
+  const bytes = await file.arrayBuffer();
+  await writeFile(filepath, Buffer.from(bytes));
+  const url = `/documents/${userId}/vehicles/${vehicleId}/${filename}`;
   return { url };
 }

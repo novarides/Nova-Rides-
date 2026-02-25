@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore } from "@/lib/store";
+import { getStore, setStore, persistStore } from "@/lib/store";
 import { requireAuth, requireRole } from "@/lib/auth";
 import { Vehicle } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
@@ -44,6 +44,7 @@ export async function PATCH(
     };
     store.vehicles[index] = updated;
     setStore(store);
+    persistStore();
     return NextResponse.json({ success: true, data: updated });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -70,6 +71,7 @@ export async function DELETE(
     }
     store.vehicles.splice(index, 1);
     setStore(store);
+    persistStore();
     return NextResponse.json({ success: true, data: null });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

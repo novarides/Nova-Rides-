@@ -33,6 +33,19 @@ export interface User {
   firstName: string;
   lastName: string;
   avatar?: string;
+  /** Renter verification: personal info */
+  dateOfBirth?: string;
+  residentialAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  /** Renter verification: documents */
+  passportPhotoUrl?: string;
+  proofOfAddressUrl?: string;
+  /** Renter verification: agreement & consent */
+  verificationInfoCorrect?: boolean;
+  verificationPoliciesAgreed?: boolean;
+  verificationSignature?: string;
+  verificationSignedAt?: string;
   createdAt: string;
   updatedAt: string;
   acceptedTerms: boolean;
@@ -81,6 +94,19 @@ export interface Vehicle {
   promoted: boolean;
   rating?: number;
   reviewCount?: number;
+  /** License plate, VIN, color, roadworthiness doc */
+  licensePlate?: string;
+  vin?: string;
+  color?: string;
+  roadworthinessDocUrl?: string;
+  /** Included mileage per day (e.g. 200 miles or 322 km) */
+  mileagePerDay?: number;
+  mileagePerDayUnit?: "km" | "miles";
+  /** Listing agreement & consent */
+  listingInfoCorrect?: boolean;
+  listingPoliciesAgreed?: boolean;
+  listingSignature?: string;
+  listingSignedAt?: string;
   createdAt: string;
   updatedAt: string;
   status: "active" | "inactive" | "pending_approval";

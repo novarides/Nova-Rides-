@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { verifyPaystackTransaction } from "@/lib/payments";
 import { Transaction } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
   };
   store.transactions.push(tx);
   setStore(store);
+  persistStore();
 
   return NextResponse.json({ success: true, data: { bookingId, paid: true } });
 }

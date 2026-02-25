@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { sendVerificationEmail } from "@/lib/email";
 import { ApiResponse } from "@/lib/types";
@@ -25,6 +25,7 @@ export async function POST(_request: NextRequest): Promise<NextResponse<ApiRespo
     const idx = store.users.findIndex((x) => x.id === user.id);
     if (idx !== -1) store.users[idx] = u;
     setStore(store);
+    persistStore();
 
     const result = await sendVerificationEmail(u.email, verifyToken);
     if (!result.ok) {

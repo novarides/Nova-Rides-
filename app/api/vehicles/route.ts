@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireRole } from "@/lib/auth";
 import { Vehicle } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
+import { saveVehicleDocument } from "@/lib/documents";
 
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Vehicle[]>>> {
   const store = getStore();
@@ -17,34 +18,66 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<Vehicle>>> {
   try {
     const { user } = await requireRole(["host", "admin"]);
-    const body = await request.json();
     const store = getStore();
+    let body: Record<string, unknown>;
+    let roadworthinessFile: File | null = null;
+
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const dataStr = formData.get("data") as string | null;
+      if (!dataStr) return NextResponse.json({ success: false, error: "Missing data field" }, { status: 400 });
+      body = JSON.parse(dataStr) as Record<string, unknown>;
+      const file = formData.get("roadworthiness");
+      if (file && file instanceof File && file.size > 0) roadworthinessFile = file;
+    } else {
+      body = await request.json();
+    }
+
+    const vehicleId = generateId();
     const vehicle: Vehicle = {
-      id: generateId(),
+      id: vehicleId,
       hostId: user.id,
-      title: body.title,
-      description: body.description || "",
-      year: body.year,
-      make: body.make,
-      model: body.model,
-      mileage: body.mileage ?? 0,
-      vehicleClass: body.vehicleClass || "midsize",
-      pricePerDay: body.pricePerDay,
-      pricePerWeek: body.pricePerWeek,
-      currency: body.currency || "NGN",
-      images: Array.isArray(body.images) ? body.images : [],
-      location: body.location,
-      availability: Array.isArray(body.availability) ? body.availability : [],
-      minRentalDays: body.minRentalDays ?? 1,
-      bookingType: body.bookingType || "approval",
-      featured: body.featured ?? false,
-      promoted: body.promoted ?? false,
+      title: body.title as string,
+      description: (body.description as string) || "",
+      year: body.year as number,
+      make: body.make as string,
+      model: body.model as string,
+      mileage: (body.mileage as number) ?? 0,
+      vehicleClass: (body.vehicleClass as Vehicle["vehicleClass"]) || "midsize",
+      pricePerDay: body.pricePerDay as number,
+      pricePerWeek: body.pricePerWeek as number | undefined,
+      currency: (body.currency as string) || "NGN",
+      images: Array.isArray(body.images) ? (body.images as string[]) : [],
+      location: body.location as Vehicle["location"],
+      availability: Array.isArray(body.availability) ? (body.availability as string[]) : [],
+      minRentalDays: (body.minRentalDays as number) ?? 1,
+      bookingType: (body.bookingType as Vehicle["bookingType"]) || "approval",
+      featured: (body.featured as boolean) ?? false,
+      promoted: (body.promoted as boolean) ?? false,
       status: "active",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      licensePlate: body.licensePlate as string | undefined,
+      vin: body.vin as string | undefined,
+      color: body.color as string | undefined,
+      mileagePerDay: body.mileagePerDay as number | undefined,
+      mileagePerDayUnit: body.mileagePerDayUnit as "km" | "miles" | undefined,
+      listingInfoCorrect: body.listingInfoCorrect as boolean | undefined,
+      listingPoliciesAgreed: body.listingPoliciesAgreed as boolean | undefined,
+      listingSignature: body.listingSignature as string | undefined,
+      listingSignedAt: body.listingSignedAt as string | undefined,
     };
+
+    if (roadworthinessFile) {
+      const result = await saveVehicleDocument(user.id, vehicleId, "roadworthiness", roadworthinessFile);
+      if ("error" in result) return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+      vehicle.roadworthinessDocUrl = result.url;
+    }
+
     store.vehicles.push(vehicle);
     setStore(store);
+    persistStore();
     return NextResponse.json({ success: true, data: vehicle });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

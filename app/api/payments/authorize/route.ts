@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore, generateId } from "@/lib/store";
+import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { Transaction } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const bIndex = store.bookings.findIndex((b) => b.id === bookingId);
     if (bIndex !== -1) store.bookings[bIndex] = { ...booking, updatedAt: new Date().toISOString() };
     setStore(store);
+    persistStore();
     return NextResponse.json({ success: true, data: tx });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

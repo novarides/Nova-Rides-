@@ -54,4 +54,18 @@
 
 ---
 
+## Troubleshooting: NOT_FOUND (404)
+
+If you see Vercel’s **NOT_FOUND** error:
+
+1. **Check the URL** – Use the exact deployment URL from the Vercel dashboard (e.g. `https://your-project.vercel.app`). No typos, and include `https://`.
+2. **Confirm the deployment exists** – In [Vercel Dashboard](https://vercel.com/dashboard) → your project → **Deployments**, ensure there is a successful deployment. If the latest one failed, fix the build and redeploy.
+3. **Review deployment logs** – Open the deployment → **Building** / **Runtime Logs** to see build or runtime errors that might make the app unavailable.
+4. **Permissions** – Ensure your account has access to the project (team/role).
+5. **After linking GitHub** – If you just connected the repo, wait for the first build to finish; the project URL is only valid once a deployment succeeds.
+
+If a *specific path* on your app returns 404 (e.g. `/some-page`), that route may be missing in the app (no `page.tsx` for that segment). Add the route or use the in-app 404 (Back to home) for unknown paths.
+
+---
+
 After deployment, the daily cron (licence expiry check) runs automatically at 6:00 AM UTC as long as `CRON_SECRET` is set in the Vercel project.

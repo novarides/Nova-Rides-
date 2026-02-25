@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStore, setStore } from "@/lib/store";
+import { getStore, setStore, persistStore } from "@/lib/store";
 import { ApiResponse } from "@/lib/types";
 
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<{ verified: boolean }>>> {
@@ -23,6 +23,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   const idx = store.users.findIndex((u) => u.id === user.id);
   if (idx !== -1) store.users[idx] = user;
   setStore(store);
+  persistStore();
 
   return NextResponse.json({ success: true, data: { verified: true } });
 }
