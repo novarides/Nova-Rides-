@@ -61,6 +61,7 @@ export default function BookingDetailPage() {
   const id = params.id as string;
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [booking, setBooking] = useState<Booking | null>(null);
+  // user/setUser required for isHost and host/renter review UI
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig>({ paystack: false, stripe: false });
   const [loading, setLoading] = useState(true);
