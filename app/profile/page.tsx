@@ -19,6 +19,16 @@ interface Profile {
   identityDocBack?: string;
   licenseDocFront?: string;
   licenseDocBack?: string;
+  dateOfBirth?: string;
+  residentialAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  passportPhotoUrl?: string;
+  proofOfAddressUrl?: string;
+  verificationInfoCorrect?: boolean;
+  verificationPoliciesAgreed?: boolean;
+  verificationSignature?: string;
+  verificationSignedAt?: string;
 }
 
 export default function ProfilePage() {
@@ -28,7 +38,18 @@ export default function ProfilePage() {
   const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [form, setForm] = useState({ firstName: "", lastName: "", phone: "" });
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    dateOfBirth: "",
+    residentialAddress: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    verificationInfoCorrect: false,
+    verificationPoliciesAgreed: false,
+    verificationSignature: "",
+  });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [idFront, setIdFront] = useState<File | null>(null);
@@ -36,6 +57,8 @@ export default function ProfilePage() {
   const [licenseFront, setLicenseFront] = useState<File | null>(null);
   const [licenseBack, setLicenseBack] = useState<File | null>(null);
   const [licenseExpiry, setLicenseExpiry] = useState("");
+  const [passportFile, setPassportFile] = useState<File | null>(null);
+  const [proofOfAddressFile, setProofOfAddressFile] = useState<File | null>(null);
   const [docUploading, setDocUploading] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,6 +102,14 @@ export default function ProfilePage() {
           firstName: form.firstName,
           lastName: form.lastName,
           phone: form.phone || "",
+          dateOfBirth: form.dateOfBirth || "",
+          residentialAddress: form.residentialAddress || "",
+          emergencyContactName: form.emergencyContactName || "",
+          emergencyContactPhone: form.emergencyContactPhone || "",
+          verificationInfoCorrect: form.verificationInfoCorrect,
+          verificationPoliciesAgreed: form.verificationPoliciesAgreed,
+          verificationSignature: form.verificationSignature || "",
+          verificationSignedAt: form.verificationSignature ? new Date().toISOString() : "",
         }),
       });
       const data = await res.json();
@@ -209,7 +240,54 @@ export default function ProfilePage() {
     }
   };
 
-  const licenceExpired = profile.licenseExpiryDate ? new Date(profile.licenseExpiryDate) <= new Date() : false;
+  const handlePassportUpload = async () => {
+    if (!passportFile) return;
+    setError("");
+    setDocUploading("passport");
+    try {
+      const fd = new FormData();
+      fd.set("passportPhoto", passportFile);
+      const res = await fetch("/api/user/documents/passport", { method: "POST", credentials: "include", body: fd });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Upload failed");
+        return;
+      }
+      setProfile((p) => (p ? { ...p, passportPhotoUrl: data.data.passportPhotoUrl } : null));
+      setPassportFile(null);
+      setMessage("Passport photograph uploaded.");
+    } catch {
+      setError("Upload failed.");
+    } finally {
+      setDocUploading(null);
+    }
+  };
+
+  const handleProofOfAddressUpload = async () => {
+    if (!proofOfAddressFile) return;
+    setError("");
+    setDocUploading("proofOfAddress");
+    try {
+      const fd = new FormData();
+      fd.set("proofOfAddress", proofOfAddressFile);
+      const res = await fetch("/api/user/documents/proof-of-address", { method: "POST", credentials: "include", body: fd });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Upload failed");
+        return;
+      }
+      setProfile((p) => (p ? { ...p, proofOfAddressUrl: data.data.proofOfAddressUrl } : null));
+      setProofOfAddressFile(null);
+      setMessage("Proof of address uploaded.");
+    } catch {
+      setError("Upload failed.");
+    } finally {
+      setDocUploading(null);
+    }
+  };
+
+  const expiryDate = profile?.licenseExpiryDate;
+  const licenceExpired = expiryDate ? new Date(expiryDate) <= new Date() : false;
 
   if (loading) {
     return (
@@ -324,12 +402,25 @@ export default function ProfilePage() {
       </div>
 
       <div className="card mt-6 p-6">
-        <h2 className="font-display text-lg font-bold text-white">Verification documents</h2>
-        <p className="mt-1 text-sm text-slate-400">Government-issued ID and driver's licence (front and back). Required to book cars.</p>
+        <h2 className="font-display text-lg font-bold text-white">1. Personal information</h2>
+        <p className="mt-1 text-sm text-slate-400">Full name, date of birth, address, and emergency contact. Completed in the form above.</p>
+        <ul className="mt-2 list-inside list-disc text-sm text-slate-400">
+          <li>Full name: {profile.firstName} {profile.lastName}</li>
+          {profile.dateOfBirth && <li>Date of birth: {new Date(profile.dateOfBirth).toLocaleDateString()}</li>}
+          {profile.residentialAddress && <li>Residential address: {profile.residentialAddress}</li>}
+          {(profile.emergencyContactName || profile.emergencyContactPhone) && (
+            <li>Emergency contact: {[profile.emergencyContactName, profile.emergencyContactPhone].filter(Boolean).join(" – ")}</li>
+          )}
+        </ul>
+      </div>
+
+      <div className="card mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-white">2. Identification & documents</h2>
+        <p className="mt-1 text-sm text-slate-400">Government-issued ID (International passport, NIN, etc.), passport photograph, and proof of address (utility bill, etc.).</p>
 
         <div className="mt-6 space-y-6">
           <div>
-            <h3 className="text-sm font-medium text-slate-300">Government-issued ID</h3>
+            <h3 className="text-sm font-medium text-slate-300">Government-issued ID (International passport, NIN, etc.)</h3>
             {profile.identityVerified ? (
               <p className="mt-1 text-sm text-green-400">✓ ID verified</p>
             ) : (
@@ -342,6 +433,38 @@ export default function ProfilePage() {
                 </label>
                 <button type="button" onClick={handleIdentityUpload} disabled={!idFront || !idBack || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
                   {docUploading === "identity" ? "Uploading…" : "Upload ID"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-slate-300">Passport photograph</h3>
+            {profile.passportPhotoUrl ? (
+              <p className="mt-1 text-sm text-green-400">✓ Uploaded</p>
+            ) : (
+              <div className="mt-2 flex flex-wrap items-end gap-3">
+                <label className="text-sm text-slate-400">
+                  <input type="file" accept="image/*" className="ml-1 text-slate-300" onChange={(e) => setPassportFile(e.target.files?.[0] ?? null)} />
+                </label>
+                <button type="button" onClick={handlePassportUpload} disabled={!passportFile || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                  {docUploading === "passport" ? "Uploading…" : "Upload passport photo"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-slate-300">Proof of address (utility bill, etc.)</h3>
+            {profile.proofOfAddressUrl ? (
+              <p className="mt-1 text-sm text-green-400">✓ Uploaded</p>
+            ) : (
+              <div className="mt-2 flex flex-wrap items-end gap-3">
+                <label className="text-sm text-slate-400">
+                  <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setProofOfAddressFile(e.target.files?.[0] ?? null)} />
+                </label>
+                <button type="button" onClick={handleProofOfAddressUpload} disabled={!proofOfAddressFile || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                  {docUploading === "proofOfAddress" ? "Uploading…" : "Upload proof of address"}
                 </button>
               </div>
             )}
@@ -369,6 +492,45 @@ export default function ProfilePage() {
                 {docUploading === "license" ? "Uploading…" : profile.licenseDocFront ? "Update licence" : "Upload licence"}
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-white">3. Agreement & consent</h2>
+        <p className="mt-1 text-sm text-slate-400">Confirm your details and agree to driver policies. Save profile to record your signature and date.</p>
+
+        <div className="mt-6 space-y-4">
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={form.verificationInfoCorrect}
+              onChange={(e) => setForm((f) => ({ ...f, verificationInfoCorrect: e.target.checked }))}
+              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            />
+            <span className="text-sm text-slate-300">I confirm all the information provided is correct.</span>
+          </label>
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={form.verificationPoliciesAgreed}
+              onChange={(e) => setForm((f) => ({ ...f, verificationPoliciesAgreed: e.target.checked }))}
+              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+            />
+            <span className="text-sm text-slate-300">I agree to abide by the company's driver policies, safety standards, and customer service expectations.</span>
+          </label>
+          <div className="pt-2">
+            <label className="mb-1 block text-sm font-medium text-slate-400">Signature (digital) & date</label>
+            <input
+              type="text"
+              value={form.verificationSignature}
+              onChange={(e) => setForm((f) => ({ ...f, verificationSignature: e.target.value }))}
+              className="input-field max-w-xs"
+              placeholder="Type your full name to sign"
+            />
+            {profile.verificationSignedAt && (
+              <p className="mt-1 text-xs text-slate-500">Signed on {new Date(profile.verificationSignedAt).toLocaleString()}</p>
+            )}
           </div>
         </div>
       </div>
