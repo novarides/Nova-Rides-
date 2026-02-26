@@ -70,10 +70,7 @@ function LoginForm() {
           {loading ? "Logging in…" : "Log in"}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-500">
-        Demo: host@novarides.com / renter@novarides.com — password: <code className="text-amber-400">password123</code>
-      </p>
-      <p className="mt-4 text-center text-sm text-slate-400">
+      <p className="mt-6 text-center text-sm text-slate-400">
         Don’t have an account? <Link href="/register" className="text-amber-400 hover:text-amber-300">Sign up</Link>
       </p>
     </div>
