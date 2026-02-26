@@ -1,0 +1,12 @@
+# Netlify build configuration for Next.js (OpenNext adapter is auto-detected)
+# https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/
+
+[build]
+  command = "npm run build"
+  # Publish directory is set automatically by Netlify's Next.js (OpenNext) adapter
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Optional: uncomment to enable skew protection (recommended for production)
+# NETLIFY_NEXT_SKEW_PROTECTION = "true"

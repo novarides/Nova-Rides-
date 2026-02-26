@@ -138,8 +138,8 @@ export default function EditVehiclePage() {
     );
   }
 
-  const mileageMiles = form.mileagePerDayUnit === "miles" ? form.mileagePerDay : Math.round((form.mileagePerDay || 0) / MILES_TO_KM * 10) / 10;
-  const mileageKm = form.mileagePerDayUnit === "km" ? form.mileagePerDay : Math.round((form.mileagePerDay || 0) * MILES_TO_KM);
+  const mileageMiles = form.mileagePerDayUnit === "miles" ? (form.mileagePerDay ?? 0) : Math.round((form.mileagePerDay || 0) / MILES_TO_KM * 10) / 10;
+  const mileageKm = form.mileagePerDayUnit === "km" ? (form.mileagePerDay ?? 0) : Math.round((form.mileagePerDay || 0) * MILES_TO_KM);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">

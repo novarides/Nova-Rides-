@@ -26,12 +26,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : file.type === "image/gif" ? "gif" : "webp";
     const filename = `${user.id}.${ext}`;
     const dir = path.join(process.cwd(), "public", "avatars");
-    await mkdir(dir, { recursive: true });
-    const filepath = path.join(dir, filename);
-    const bytes = await file.arrayBuffer();
-    await writeFile(filepath, Buffer.from(bytes));
-
-    const avatarUrl = `/avatars/${filename}`;
+    let avatarUrl: string;
+    try {
+      await mkdir(dir, { recursive: true });
+      const filepath = path.join(dir, filename);
+      const bytes = await file.arrayBuffer();
+      await writeFile(filepath, Buffer.from(bytes));
+      avatarUrl = `/avatars/${filename}`;
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "File storage is not available in this environment (e.g. Netlify serverless). Use cloud storage for production." },
+        { status: 503 }
+      );
+    }
     const store = getStore();
     const idx = store.users.findIndex((x) => x.id === user.id);
     if (idx !== -1) {

@@ -28,10 +28,14 @@ export async function saveDocument(
   const ext = getExt(file.type);
   const filename = `${side}.${ext}`;
   const dir = path.join(process.cwd(), "public", "documents", userId, docType);
-  await mkdir(dir, { recursive: true });
-  const filepath = path.join(dir, filename);
-  const bytes = await file.arrayBuffer();
-  await writeFile(filepath, Buffer.from(bytes));
+  try {
+    await mkdir(dir, { recursive: true });
+    const filepath = path.join(dir, filename);
+    const bytes = await file.arrayBuffer();
+    await writeFile(filepath, Buffer.from(bytes));
+  } catch {
+    return { error: "File storage is not available in this environment (e.g. serverless). Use a cloud storage solution for production." };
+  }
   const url = `/documents/${userId}/${docType}/${filename}`;
   return { url };
 }
@@ -52,10 +56,14 @@ export async function saveVehicleDocument(
   const ext = file.type === "application/pdf" ? "pdf" : file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : file.type === "image/gif" ? "gif" : "webp";
   const filename = `${docType}.${ext}`;
   const dir = path.join(process.cwd(), "public", "documents", userId, "vehicles", vehicleId);
-  await mkdir(dir, { recursive: true });
-  const filepath = path.join(dir, filename);
-  const bytes = await file.arrayBuffer();
-  await writeFile(filepath, Buffer.from(bytes));
+  try {
+    await mkdir(dir, { recursive: true });
+    const filepath = path.join(dir, filename);
+    const bytes = await file.arrayBuffer();
+    await writeFile(filepath, Buffer.from(bytes));
+  } catch {
+    return { error: "File storage is not available in this environment (e.g. serverless). Use a cloud storage solution for production." };
+  }
   const url = `/documents/${userId}/vehicles/${vehicleId}/${filename}`;
   return { url };
 }
@@ -79,10 +87,14 @@ export async function saveVehicleImage(
   const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : file.type === "image/gif" ? "gif" : "webp";
   const filename = `${index}.${ext}`;
   const dir = path.join(process.cwd(), "public", "documents", userId, "vehicles", vehicleId, "images");
-  await mkdir(dir, { recursive: true });
-  const filepath = path.join(dir, filename);
-  const bytes = await file.arrayBuffer();
-  await writeFile(filepath, Buffer.from(bytes));
+  try {
+    await mkdir(dir, { recursive: true });
+    const filepath = path.join(dir, filename);
+    const bytes = await file.arrayBuffer();
+    await writeFile(filepath, Buffer.from(bytes));
+  } catch {
+    return { error: "File storage is not available in this environment (e.g. serverless). Use a cloud storage solution for production." };
+  }
   const url = `/documents/${userId}/vehicles/${vehicleId}/images/${filename}`;
   return { url };
 }

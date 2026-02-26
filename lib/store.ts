@@ -1,5 +1,5 @@
 // In-memory JSON store with optional file persistence for MVP.
-// Data is saved to data/store.json locally so it survives restarts. On Vercel (read-only fs) we fall back to in-memory only.
+// Data is saved to data/store.json locally so it survives restarts. On Vercel/Netlify (read-only fs) we fall back to in-memory only; data does not persist across serverless invocations.
 import { User, Vehicle, Booking, Review, Message, Transaction } from "./types";
 import { v4 as uuid } from "uuid";
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
@@ -148,7 +148,7 @@ function loadStoreSync(): void {
   }
 }
 
-/** Persist store to data/store.json. No-op on Vercel (read-only fs). */
+/** Persist store to data/store.json. No-op on Vercel/Netlify (read-only fs). */
 export function persistStore(): void {
   loadStoreSync();
   try {
