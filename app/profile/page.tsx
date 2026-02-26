@@ -52,14 +52,40 @@ export default function ProfilePage() {
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [idFront, setIdFront] = useState<File | null>(null);
-  const [idBack, setIdBack] = useState<File | null>(null);
+  const [identityFile, setIdentityFile] = useState<File | null>(null);
   const [licenseFront, setLicenseFront] = useState<File | null>(null);
   const [licenseBack, setLicenseBack] = useState<File | null>(null);
   const [licenseExpiry, setLicenseExpiry] = useState("");
   const [passportFile, setPassportFile] = useState<File | null>(null);
   const [proofOfAddressFile, setProofOfAddressFile] = useState<File | null>(null);
   const [docUploading, setDocUploading] = useState<string | null>(null);
+  const [verificationLink, setVerificationLink] = useState<string | null>(null);
+  const [roleSwitching, setRoleSwitching] = useState(false);
+
+  const handleSwitchRole = async (newRole: "host" | "renter") => {
+    if (profile?.role === newRole) return;
+    setRoleSwitching(true);
+    setError("");
+    try {
+      const res = await fetch("/api/user/role", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ role: newRole }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || "Could not switch mode");
+        return;
+      }
+      setProfile((p) => (p ? { ...p, role: newRole } : null));
+      window.location.href = newRole === "host" ? "/dashboard/host" : "/dashboard/renter";
+    } catch {
+      setError("Something went wrong.");
+    } finally {
+      setRoleSwitching(false);
+    }
+  };
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -74,10 +100,18 @@ export default function ProfilePage() {
           .then((d2) => {
             if (d2.success && d2.data) {
               setProfile(d2.data);
+              const d = d2.data;
               setForm({
-                firstName: d2.data.firstName || "",
-                lastName: d2.data.lastName || "",
-                phone: d2.data.phone || "",
+                firstName: d.firstName || "",
+                lastName: d.lastName || "",
+                phone: d.phone || "",
+                dateOfBirth: d.dateOfBirth || "",
+                residentialAddress: d.residentialAddress || "",
+                emergencyContactName: d.emergencyContactName || "",
+                emergencyContactPhone: d.emergencyContactPhone || "",
+                verificationInfoCorrect: Boolean(d.verificationInfoCorrect),
+                verificationPoliciesAgreed: Boolean(d.verificationPoliciesAgreed),
+                verificationSignature: d.verificationSignature || "",
               });
               setAvatarPreview(d2.data.avatar || null);
             }
@@ -172,12 +206,21 @@ export default function ProfilePage() {
 
   const handleResendVerification = async () => {
     setError("");
+    setMessage("");
+    setVerificationLink(null);
     setResending(true);
     try {
       const res = await fetch("/api/auth/resend-verification", { method: "POST", credentials: "include" });
       const data = await res.json();
       if (data.success) {
-        setMessage(data.data?.sent ? "Verification email sent. Check your inbox." : "Email already verified.");
+        if (data.data?.verificationLink) {
+          setVerificationLink(data.data.verificationLink);
+          setMessage("Email not configured. Use the link below to verify:");
+        } else if (data.data?.sent) {
+          setMessage("Verification email sent. Check your inbox.");
+        } else {
+          setMessage("Email already verified.");
+        }
       } else {
         setError(data.error || "Could not send email");
       }
@@ -189,13 +232,12 @@ export default function ProfilePage() {
   };
 
   const handleIdentityUpload = async () => {
-    if (!idFront || !idBack) return;
+    if (!identityFile) return;
     setError("");
     setDocUploading("identity");
     try {
       const fd = new FormData();
-      fd.set("identityFront", idFront);
-      fd.set("identityBack", idBack);
+      fd.set("identityDocument", identityFile);
       const res = await fetch("/api/user/documents/identity", { method: "POST", credentials: "include", body: fd });
       const data = await res.json();
       if (!data.success) {
@@ -203,8 +245,7 @@ export default function ProfilePage() {
         return;
       }
       setProfile((p) => (p ? { ...p, identityVerified: true } : null));
-      setIdFront(null);
-      setIdBack(null);
+      setIdentityFile(null);
       setMessage("Government ID uploaded and verified.");
     } catch {
       setError("Upload failed.");
@@ -315,6 +356,14 @@ export default function ProfilePage() {
           >
             {resending ? "Sending…" : "Resend verification email"}
           </button>
+          {verificationLink && (
+            <div className="mt-3">
+              <p className="text-xs text-amber-200/80">{message || "Use this link to verify (valid 24 hours):"}</p>
+              <a href={verificationLink} className="mt-1 block break-all text-sm text-amber-300 underline hover:text-amber-200">
+                {verificationLink}
+              </a>
+            </div>
+          )}
         </div>
       )}
 
@@ -323,6 +372,35 @@ export default function ProfilePage() {
           <p className="text-sm text-red-200">Your driver's licence has expired. Upload a new one below to book cars again.</p>
         </div>
       )}
+
+      <div className="card mt-6 p-6">
+        <h2 className="font-display text-lg font-bold text-white">Account mode</h2>
+        <p className="mt-1 text-sm text-slate-400">Switch between hosting vehicles and renting. You can do both; this only changes which dashboard and actions are in focus.</p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="text-sm text-slate-400">Currently:</span>
+          <span className="rounded bg-slate-700 px-2 py-1 text-sm font-medium text-amber-400 capitalize">{profile.role === "admin" ? "Admin" : profile.role}</span>
+          {profile.role !== "admin" && (
+            <>
+              <button
+                type="button"
+                onClick={() => handleSwitchRole("host")}
+                disabled={roleSwitching || profile.role === "host"}
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 disabled:border-slate-600 disabled:bg-transparent disabled:text-slate-500"
+              >
+                {roleSwitching ? "Switching…" : "Switch to Host"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchRole("renter")}
+                disabled={roleSwitching || profile.role === "renter"}
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 border-slate-500 bg-slate-700/50 text-slate-300 hover:bg-slate-600 disabled:border-slate-600 disabled:bg-slate-800 disabled:text-slate-500"
+              >
+                Switch to Renter
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="card mt-6 p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -426,12 +504,9 @@ export default function ProfilePage() {
             ) : (
               <div className="mt-2 flex flex-wrap items-end gap-3">
                 <label className="text-sm text-slate-400">
-                  Front: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setIdFront(e.target.files?.[0] ?? null)} />
+                  <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setIdentityFile(e.target.files?.[0] ?? null)} />
                 </label>
-                <label className="text-sm text-slate-400">
-                  Back: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setIdBack(e.target.files?.[0] ?? null)} />
-                </label>
-                <button type="button" onClick={handleIdentityUpload} disabled={!idFront || !idBack || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                <button type="button" onClick={handleIdentityUpload} disabled={!identityFile || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
                   {docUploading === "identity" ? "Uploading…" : "Upload ID"}
                 </button>
               </div>

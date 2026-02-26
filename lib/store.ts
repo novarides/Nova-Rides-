@@ -2,6 +2,7 @@
 // Data is saved to data/store.json locally so it survives restarts. On Vercel (read-only fs) we fall back to in-memory only.
 import { User, Vehicle, Booking, Review, Message, Transaction } from "./types";
 import { v4 as uuid } from "uuid";
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 import { readFile, writeFile, mkdir } from "fs/promises";
 import path from "path";
 

@@ -59,3 +59,30 @@ export async function saveVehicleDocument(
   const url = `/documents/${userId}/vehicles/${vehicleId}/${filename}`;
   return { url };
 }
+
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB per image
+
+/** Save a vehicle photo. Path: documents/{userId}/vehicles/{vehicleId}/images/{index}.{ext} */
+export async function saveVehicleImage(
+  userId: string,
+  vehicleId: string,
+  index: number,
+  file: File
+): Promise<{ url: string } | { error: string }> {
+  if (!IMAGE_TYPES.includes(file.type)) {
+    return { error: "Invalid file type. Use JPEG, PNG, GIF, or WebP." };
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    return { error: "Image too large. Max 5MB per image." };
+  }
+  const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : file.type === "image/gif" ? "gif" : "webp";
+  const filename = `${index}.${ext}`;
+  const dir = path.join(process.cwd(), "public", "documents", userId, "vehicles", vehicleId, "images");
+  await mkdir(dir, { recursive: true });
+  const filepath = path.join(dir, filename);
+  const bytes = await file.arrayBuffer();
+  await writeFile(filepath, Buffer.from(bytes));
+  const url = `/documents/${userId}/vehicles/${vehicleId}/images/${filename}`;
+  return { url };
+}

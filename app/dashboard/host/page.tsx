@@ -45,6 +45,14 @@ export default function HostDashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+
+  const vehicleIdsWithBookings = new Set(bookings.map((b) => b.vehicleId));
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -64,6 +72,78 @@ export default function HostDashboardPage() {
       .then((r) => r.json())
       .then((d) => d.success && setBookings(d.data));
   }, [user?.id]);
+
+  const handleAccept = async (b: Booking) => {
+    const res = await fetch("/api/bookings/" + b.id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: "confirmed" }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.success) setBookings((prev) => prev.map((x) => (x.id === b.id ? { ...x, status: "confirmed" } : x)));
+    }
+  };
+
+  const handleDecline = async (b: Booking) => {
+    const res = await fetch("/api/bookings/" + b.id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: "rejected" }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.success) setBookings((prev) => prev.map((x) => (x.id === b.id ? { ...x, status: "rejected" } : x)));
+    }
+  };
+
+  const handleDeleteVehicle = async (v: Vehicle) => {
+    if (vehicleIdsWithBookings.has(v.id)) return;
+    setDeleteError("");
+    setDeletingId(v.id);
+    try {
+      const res = await fetch("/api/vehicles/" + v.id, { method: "DELETE", credentials: "include" });
+      const data = await res.json();
+      if (!data.success) {
+        setDeleteError(data.error || "Could not delete");
+        return;
+      }
+      setVehicles((prev) => prev.filter((x) => x.id !== v.id));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleSubmitReview = async (b: Booking) => {
+    if (!b.renterId) return;
+    setReviewError("");
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          bookingId: b.id,
+          revieweeId: b.renterId,
+          rating: reviewRating,
+          comment: reviewComment.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setReviewError(data.error || "Failed to submit review");
+        return;
+      }
+      setBookings((prev) => prev.map((x) => (x.id === b.id ? { ...x, hasHostReviewedGuest: true } : x)));
+      setReviewingId(null);
+      setReviewRating(5);
+      setReviewComment("");
+    } catch {
+      setReviewError("Something went wrong.");
+    }
+  };
 
   if (!user) return null;
 
@@ -86,6 +166,7 @@ export default function HostDashboardPage() {
 
       <section className="mt-10">
         <h2 className="font-display text-lg font-bold text-white">My vehicles</h2>
+        {deleteError && <p className="mt-2 text-sm text-red-400">{deleteError}</p>}
         {vehicles.length === 0 ? (
           <div className="card mt-4 p-8 text-center text-slate-500">
             No vehicles yet. <Link href="/dashboard/host/vehicles/new" className="text-amber-400 hover:underline">List your first car</Link>
@@ -93,12 +174,27 @@ export default function HostDashboardPage() {
         ) : (
           <ul className="mt-4 space-y-3">
             {vehicles.map((v) => (
-              <li key={v.id} className="card flex items-center justify-between p-4">
+              <li key={v.id} className="card flex items-center justify-between gap-4 p-4">
                 <div>
                   <p className="font-medium text-white">{v.title}</p>
                   <p className="text-sm text-slate-500">{v.currency} {v.pricePerDay.toLocaleString()}/day · {v.status}</p>
                 </div>
-                <Link href={"/vehicles/" + v.id} className="text-sm text-amber-400 hover:text-amber-300">View</Link>
+                <div className="flex items-center gap-2">
+                  <Link href={"/dashboard/host/vehicles/" + v.id + "/edit"} className="text-sm text-amber-400 hover:text-amber-300">Edit</Link>
+                  <Link href={"/vehicles/" + v.id} className="text-sm text-slate-400 hover:text-white">View</Link>
+                  {vehicleIdsWithBookings.has(v.id) ? (
+                    <span className="text-xs text-slate-500" title="Cannot delete: vehicle has bookings">Has bookings</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteVehicle(v)}
+                      disabled={deletingId === v.id}
+                      className="rounded bg-red-600/80 px-2 py-1 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-50"
+                    >
+                      {deletingId === v.id ? "Deleting…" : "Delete"}
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

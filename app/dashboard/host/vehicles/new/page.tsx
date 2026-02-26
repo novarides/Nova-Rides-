@@ -13,6 +13,11 @@ export default function NewVehiclePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [roadworthinessFile, setRoadworthinessFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [priceRecommendation, setPriceRecommendation] = useState<{ price: number; reasoning: string } | null>(null);
+  const [recommendLoading, setRecommendLoading] = useState(false);
+  const [recommendError, setRecommendError] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -42,6 +47,65 @@ export default function NewVehiclePage() {
   const mileageMiles = form.mileagePerDayUnit === "miles" ? form.mileagePerDay : Math.round((form.mileagePerDay / MILES_TO_KM) * 10) / 10;
   const mileageKm = form.mileagePerDayUnit === "km" ? form.mileagePerDay : Math.round(form.mileagePerDay * MILES_TO_KM);
 
+  const handleGetRecommendation = async () => {
+    setRecommendError("");
+    setPriceRecommendation(null);
+    setRecommendLoading(true);
+    try {
+      const res = await fetch("/api/vehicles/recommend-price", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          make: form.make,
+          model: form.model,
+          year: form.year,
+          vehicleClass: form.vehicleClass,
+          city: form.location.city,
+          currency: form.currency,
+        }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setRecommendError(data.error || "Could not get recommendation");
+        return;
+      }
+      setPriceRecommendation({
+        price: data.data.recommendedPricePerDay,
+        reasoning: data.data.reasoning || "Suggested based on vehicle and market.",
+      });
+    } catch {
+      setRecommendError("Something went wrong.");
+    } finally {
+      setRecommendLoading(false);
+    }
+  };
+
+  const handleApplyRecommendation = () => {
+    if (!priceRecommendation) return;
+    setForm((f) => ({ ...f, pricePerDay: priceRecommendation.price }));
+    setPriceRecommendation(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    const valid = files.filter((f) => f.type.startsWith("image/"));
+    if (valid.length + imageFiles.length > 10) {
+      setError("Maximum 10 photos. Some were not added.");
+      valid.splice(10 - imageFiles.length);
+    }
+    setImageFiles((prev) => [...prev, ...valid].slice(0, 10));
+    const newPreviews = valid.map((f) => URL.createObjectURL(f));
+    setImagePreviews((prev) => [...prev, ...newPreviews].slice(0, 10));
+    e.target.value = "";
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    URL.revokeObjectURL(imagePreviews[index]);
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -59,10 +123,12 @@ export default function NewVehiclePage() {
         ...form,
         listingSignedAt: new Date().toISOString(),
       };
-      if (roadworthinessFile) {
+      const useFormData = roadworthinessFile || imageFiles.length > 0;
+      if (useFormData) {
         const fd = new FormData();
         fd.set("data", JSON.stringify(payload));
-        fd.set("roadworthiness", roadworthinessFile);
+        if (roadworthinessFile) fd.set("roadworthiness", roadworthinessFile);
+        imageFiles.forEach((file) => fd.append("images", file));
         const res = await fetch("/api/vehicles", { method: "POST", credentials: "include", body: fd });
         const data = await res.json();
         if (!data.success) {
@@ -184,6 +250,34 @@ export default function NewVehiclePage() {
             placeholder="e.g. Black, Silver"
           />
         </div>
+
+        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
+          <h3 className="text-sm font-medium text-white">Vehicle photos</h3>
+          <p className="mt-1 text-xs text-slate-400">Upload up to 10 photos so renters can see your car. JPEG, PNG, GIF, or WebP. Max 5MB each.</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {imagePreviews.map((url, i) => (
+              <div key={i} className="relative">
+                <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover border border-slate-600" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(i)}
+                  className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs text-white hover:bg-red-500"
+                  aria-label="Remove photo"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {imageFiles.length < 10 && (
+              <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-slate-500 bg-slate-800/50 text-slate-400 hover:border-amber-500/50 hover:text-amber-400 transition">
+                <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple className="hidden" onChange={handleImageChange} />
+                <span className="text-2xl">+</span>
+              </label>
+            )}
+          </div>
+          {imageFiles.length > 0 && <p className="mt-2 text-xs text-slate-500">{imageFiles.length} photo(s) selected</p>}
+        </div>
+
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle Roadworthiness Certificate</label>
           <input
@@ -245,7 +339,17 @@ export default function NewVehiclePage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Price per day (NGN)</label>
+            <div className="mb-1 flex items-center justify-between">
+              <label className="block text-sm font-medium text-slate-400">Price per day ({form.currency})</label>
+              <button
+                type="button"
+                onClick={handleGetRecommendation}
+                disabled={recommendLoading}
+                className="text-xs font-medium text-amber-400 hover:text-amber-300 disabled:opacity-50"
+              >
+                {recommendLoading ? "Getting suggestion…" : "Get AI recommendation"}
+              </button>
+            </div>
             <input
               type="number"
               value={form.pricePerDay || ""}
@@ -254,6 +358,22 @@ export default function NewVehiclePage() {
               min={0}
               className="input-field"
             />
+            {recommendError && <p className="mt-1 text-xs text-red-400">{recommendError}</p>}
+            {priceRecommendation && (
+              <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2">
+                <p className="text-xs text-amber-200">
+                  Suggested: <strong>{form.currency} {priceRecommendation.price.toLocaleString()}</strong>/day
+                </p>
+                <p className="mt-1 text-xs text-slate-400">{priceRecommendation.reasoning}</p>
+                <button
+                  type="button"
+                  onClick={handleApplyRecommendation}
+                  className="mt-2 rounded bg-amber-600 px-2 py-1 text-xs font-medium text-white hover:bg-amber-500"
+                >
+                  Apply suggestion
+                </button>
+              </div>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-400">Price per week (NGN, optional)</label>
@@ -299,6 +419,18 @@ export default function NewVehiclePage() {
             className="input-field"
             placeholder="Lagos"
           />
+        </div>
+
+        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
+          <h3 className="text-sm font-medium text-white">Vehicle insurance</h3>
+          <p className="mt-1 text-xs text-slate-400">Get cover for your listed vehicle. Purchase or renew insurance through our partner before or after listing.</p>
+          <a
+            href="/dashboard/host/insurance"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-500/20 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-500/30 transition"
+          >
+            Purchase / manage vehicle insurance
+            <span className="text-amber-400/80">→</span>
+          </a>
         </div>
 
         <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">

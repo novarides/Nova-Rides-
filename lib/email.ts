@@ -11,13 +11,11 @@ export function isEmailConfigured(): boolean {
   return Boolean(RESEND_API_KEY);
 }
 
-export async function sendVerificationEmail(email: string, token: string): Promise<{ ok: boolean; error?: string }> {
-  if (!RESEND_API_KEY) {
-    console.warn("[Nova Rides] RESEND_API_KEY not set – verification email not sent. Link:', " + `${APP_URL}/verify-email?token=${token}`);
-    return { ok: true };
-  }
-
+export async function sendVerificationEmail(email: string, token: string): Promise<{ ok: boolean; error?: string; verifyUrl?: string }> {
   const verifyUrl = `${APP_URL}/verify-email?token=${encodeURIComponent(token)}`;
+  if (!RESEND_API_KEY) {
+    return { ok: true, verifyUrl };
+  }
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -45,7 +43,7 @@ export async function sendVerificationEmail(email: string, token: string): Promi
     if (!res.ok) {
       return { ok: false, error: data.message || "Failed to send email" };
     }
-    return { ok: true };
+    return { ok: true, verifyUrl };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }

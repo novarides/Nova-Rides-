@@ -56,7 +56,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const { emailVerifyToken: _t, emailVerifyExpires: _e, ...userSafe } = user;
     const response = NextResponse.json({
       success: true,
-      data: { user: userSafe, token },
+      data: {
+        user: userSafe,
+        token,
+        ...(emailResult.verifyUrl && { verificationLink: emailResult.verifyUrl }),
+      },
     });
     response.cookies.set("nova_token", token, { httpOnly: true, path: "/", maxAge: 60 * 60 * 24 * 7 });
     return response;

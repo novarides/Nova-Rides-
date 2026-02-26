@@ -16,6 +16,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     if (!userWithPass) {
       return NextResponse.json({ success: false, error: "Invalid credentials" }, { status: 401 });
     }
+    if (userWithPass.banned) {
+      return NextResponse.json(
+        { success: false, error: "Your account has been permanently banned for violating platform rules." },
+        { status: 403 }
+      );
+    }
     let hash = userWithPass.passwordHash;
     if (!hash && (email === "host@novarides.com" || email === "renter@novarides.com") && password === "password123") {
       hash = await bcrypt.hash("password123", 10);

@@ -106,14 +106,40 @@ export default function BookingDetailPage() {
 
   const handleAccept = async () => {
     if (!booking) return;
-    const res = await fetch("/api/bookings/" + booking.id, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: "confirmed" }) });
-    if (res.ok) { const d = await res.json(); if (d.success) setBooking(d.data); }
+    const res = await fetch("/api/bookings/" + booking.id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: "confirmed" }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.success) {
+        const refetch = await fetch("/api/bookings/" + booking.id, { credentials: "include" });
+        const refetchData = await refetch.json();
+        if (refetchData.success && refetchData.data) setBooking(refetchData.data);
+        else setBooking((b) => (b ? { ...b, status: "confirmed" } : null));
+      }
+    }
   };
 
   const handleDecline = async () => {
     if (!booking) return;
-    const res = await fetch("/api/bookings/" + booking.id, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: "rejected" }) });
-    if (res.ok) { const d = await res.json(); if (d.success) setBooking(d.data); }
+    const res = await fetch("/api/bookings/" + booking.id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status: "rejected" }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.success) {
+        const refetch = await fetch("/api/bookings/" + booking.id, { credentials: "include" });
+        const refetchData = await refetch.json();
+        if (refetchData.success && refetchData.data) setBooking(refetchData.data);
+        else setBooking((b) => (b ? { ...b, status: "rejected" } : null));
+      }
+    }
   };
 
   const handleSubmitReview = async () => {

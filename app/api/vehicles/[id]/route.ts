@@ -69,6 +69,13 @@ export async function DELETE(
     if (vehicle.hostId !== user.id && user.role !== "admin") {
       return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
     }
+    const hasBookings = store.bookings.some((b) => b.vehicleId === id);
+    if (hasBookings) {
+      return NextResponse.json(
+        { success: false, error: "Cannot delete: this vehicle has bookings. Remove or complete them first." },
+        { status: 400 }
+      );
+    }
     store.vehicles.splice(index, 1);
     setStore(store);
     persistStore();

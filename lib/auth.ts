@@ -42,7 +42,7 @@ export async function getSession(): Promise<{ user: User; token: string } | null
   if (!payload) return null;
   const { getStore } = await import("./store");
   const user = getStore().users.find((u) => u.id === payload.sub);
-  if (!user) return null;
+  if (!user || user.banned) return null;
   return { user, token };
 }
 

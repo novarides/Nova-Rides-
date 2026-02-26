@@ -44,7 +44,10 @@ export default function HostVehiclesPage() {
                 <p className="font-medium text-white">{v.title}</p>
                 <p className="text-sm text-slate-500">{v.currency} {v.pricePerDay.toLocaleString()}/day · {v.status}</p>
               </div>
-              <Link href={"/vehicles/" + v.id} className="text-sm text-amber-400 hover:text-amber-300">Edit / View</Link>
+              <div className="flex gap-3">
+                <Link href={"/dashboard/host/vehicles/" + v.id + "/edit"} className="text-sm text-amber-400 hover:text-amber-300">Edit</Link>
+                <Link href={"/vehicles/" + v.id} className="text-sm text-slate-400 hover:text-white">View</Link>
+              </div>
             </li>
           ))}
         </ul>

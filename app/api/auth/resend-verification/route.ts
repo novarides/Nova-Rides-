@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/email";
+import { sendVerificationEmail, isEmailConfigured } from "@/lib/email";
 import { ApiResponse } from "@/lib/types";
 
 const VERIFY_EXPIRY_HOURS = 24;
@@ -31,7 +31,13 @@ export async function POST(_request: NextRequest): Promise<NextResponse<ApiRespo
     if (!result.ok) {
       return NextResponse.json({ success: false, error: result.error || "Failed to send email" }, { status: 500 });
     }
-    return NextResponse.json({ success: true, data: { sent: true } });
+    return NextResponse.json({
+      success: true,
+      data: {
+        sent: isEmailConfigured(),
+        ...(result.verifyUrl && { verificationLink: result.verifyUrl }),
+      },
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json({ success: false, error: msg }, { status: 401 });

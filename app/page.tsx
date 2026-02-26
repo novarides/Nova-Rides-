@@ -12,10 +12,10 @@ export default async function HomePage() {
       <section className="relative border-b border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950 px-4 py-20 sm:px-6 sm:py-28">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="font-display text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
-            Car sharing, <span className="text-amber-400">reimagined</span>
+            Find your drive
           </h1>
-          <p className="mt-4 text-lg text-slate-400 sm:text-xl">
-            Rent from local hosts or list your car. Nova Rides connects you peer-to-peer.
+          <p className="mt-4 text-lg text-slate-400 sm:text-xl max-w-2xl mx-auto">
+            Explore Africa&apos;s largest car sharing marketplace. From daily drivers to dream cars, find the perfect ride for your next adventure.
           </p>
           <div className="mt-10">
             <SearchForm />

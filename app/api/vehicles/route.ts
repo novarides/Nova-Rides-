@@ -3,7 +3,7 @@ import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireRole } from "@/lib/auth";
 import { Vehicle } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
-import { saveVehicleDocument } from "@/lib/documents";
+import { saveVehicleDocument, saveVehicleImage } from "@/lib/documents";
 
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Vehicle[]>>> {
   const store = getStore();
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     let roadworthinessFile: File | null = null;
 
     const contentType = request.headers.get("content-type") || "";
+    let imageFiles: File[] = [];
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       const dataStr = formData.get("data") as string | null;
@@ -30,6 +31,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       body = JSON.parse(dataStr) as Record<string, unknown>;
       const file = formData.get("roadworthiness");
       if (file && file instanceof File && file.size > 0) roadworthinessFile = file;
+      const images = formData.getAll("images");
+      imageFiles = images.filter((f): f is File => f instanceof File && f.size > 0);
     } else {
       body = await request.json();
     }
@@ -74,6 +77,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       if ("error" in result) return NextResponse.json({ success: false, error: result.error }, { status: 400 });
       vehicle.roadworthinessDocUrl = result.url;
     }
+
+    const imageUrls: string[] = [];
+    for (let i = 0; i < imageFiles.length; i++) {
+      const result = await saveVehicleImage(user.id, vehicleId, i, imageFiles[i]);
+      if ("error" in result) return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+      imageUrls.push(result.url);
+    }
+    vehicle.images = imageUrls.length > 0 ? imageUrls : vehicle.images;
 
     store.vehicles.push(vehicle);
     setStore(store);

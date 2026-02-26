@@ -18,6 +18,7 @@ function RegisterForm() {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verificationLink, setVerificationLink] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +49,10 @@ function RegisterForm() {
         setError(data.error || "Registration failed");
         return;
       }
+      if (data.data?.verificationLink) {
+        setVerificationLink(data.data.verificationLink);
+        return;
+      }
       router.push("/profile");
       router.refresh();
     } catch {
@@ -56,6 +61,23 @@ function RegisterForm() {
       setLoading(false);
     }
   };
+
+  if (verificationLink) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500/20 text-green-400 text-2xl">✓</div>
+        <h1 className="mt-4 font-display text-2xl font-bold text-white">Account created</h1>
+        <p className="mt-2 text-slate-400">Verification email is not configured. Use the link below to verify your email (valid 24 hours):</p>
+        <a href={verificationLink} className="mt-4 block break-all rounded-lg border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm text-amber-300 hover:bg-amber-500/20">
+          {verificationLink}
+        </a>
+        <p className="mt-2 text-xs text-slate-500">Click the link above or copy it to your browser.</p>
+        <button type="button" onClick={() => router.push("/profile")} className="mt-6 btn-primary w-full">
+          Go to profile
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">

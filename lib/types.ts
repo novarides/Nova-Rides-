@@ -50,6 +50,11 @@ export interface User {
   updatedAt: string;
   acceptedTerms: boolean;
   acceptedPrivacy: boolean;
+  /** Permanent ban (rule violation). Banned users cannot log in or use the platform. */
+  banned?: boolean;
+  bannedAt?: string;
+  bannedReason?: string;
+  bannedBy?: string;
 }
 
 export interface UserProfile extends User {
