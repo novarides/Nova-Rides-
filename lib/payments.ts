@@ -12,7 +12,11 @@ export interface PaymentConfig {
 }
 
 export function getPaymentConfig(): PaymentConfig {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.URL ||
+    process.env.DEPLOY_URL ||
+    "http://localhost:3000";
   return {
     paystack: Boolean(process.env.PAYSTACK_SECRET_KEY),
     stripe: Boolean(process.env.STRIPE_SECRET_KEY),

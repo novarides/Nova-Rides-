@@ -215,7 +215,7 @@ export default function ProfilePage() {
       if (data.success) {
         if (data.data?.verificationLink) {
           setVerificationLink(data.data.verificationLink);
-          setMessage("Email not configured. Use the link below to verify:");
+          setMessage("Use the link below to verify your email:");
         } else if (data.data?.sent) {
           setMessage("Verification email sent. Check your inbox.");
         } else {

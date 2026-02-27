@@ -5,7 +5,13 @@
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const EMAIL_FROM = process.env.EMAIL_FROM || "Nova Rides <onboarding@resend.dev>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+// Prefer explicit app URL, but fall back to Netlify-provided deploy URL so links
+// work even if NEXT_PUBLIC_APP_URL is not set correctly.
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.URL ||
+  process.env.DEPLOY_URL ||
+  "http://localhost:3000";
 
 export function isEmailConfigured(): boolean {
   return Boolean(RESEND_API_KEY);
