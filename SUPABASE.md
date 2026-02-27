@@ -41,6 +41,8 @@ create table if not exists public.users (
   password_hash text,
   role text not null default 'renter',
   verified boolean not null default false,
+  email_verify_token text,
+  email_verify_expires timestamptz,
   first_name text not null,
   last_name text not null,
   phone text,
@@ -53,6 +55,15 @@ create table if not exists public.users (
 );
 
 create index if not exists users_email_idx on public.users (email);
+create index if not exists users_email_verify_token_idx on public.users (email_verify_token) where email_verify_token is not null;
+```
+
+If you already created the table without the verification columns, run this in the SQL Editor to add them:
+
+```sql
+alter table public.users add column if not exists email_verify_token text;
+alter table public.users add column if not exists email_verify_expires timestamptz;
+create index if not exists users_email_verify_token_idx on public.users (email_verify_token) where email_verify_token is not null;
 ```
 
 This matches the minimal fields used by `lib/supabase.ts`.

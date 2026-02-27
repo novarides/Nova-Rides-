@@ -3,6 +3,7 @@ import { getStore, setStore, generateId, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { sendVerificationEmail, isEmailConfigured } from "@/lib/email";
 import { ApiResponse } from "@/lib/types";
+import { hasSupabase, getSupabaseClient } from "@/lib/supabase";
 
 const VERIFY_EXPIRY_HOURS = 24;
 
@@ -13,21 +14,36 @@ export async function POST(_request: NextRequest): Promise<NextResponse<ApiRespo
       return NextResponse.json({ success: true, data: { sent: false }, message: "Email already verified" });
     }
 
-    const store = getStore();
-    const u = store.users.find((x) => x.id === user.id);
-    if (!u) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
-
     const verifyToken = generateId();
     const verifyExpires = new Date(Date.now() + VERIFY_EXPIRY_HOURS * 60 * 60 * 1000).toISOString();
-    u.emailVerifyToken = verifyToken;
-    u.emailVerifyExpires = verifyExpires;
-    u.updatedAt = new Date().toISOString();
-    const idx = store.users.findIndex((x) => x.id === user.id);
-    if (idx !== -1) store.users[idx] = u;
-    setStore(store);
-    persistStore();
 
-    const result = await sendVerificationEmail(u.email, verifyToken);
+    if (hasSupabase()) {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase
+        .from("users")
+        .update({
+          email_verify_token: verifyToken,
+          email_verify_expires: verifyExpires,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+      if (error) {
+        return NextResponse.json({ success: false, error: "Could not update verification" }, { status: 500 });
+      }
+    } else {
+      const store = getStore();
+      const u = store.users.find((x) => x.id === user.id);
+      if (!u) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+      u.emailVerifyToken = verifyToken;
+      u.emailVerifyExpires = verifyExpires;
+      u.updatedAt = new Date().toISOString();
+      const idx = store.users.findIndex((x) => x.id === user.id);
+      if (idx !== -1) store.users[idx] = u;
+      setStore(store);
+      persistStore();
+    }
+
+    const result = await sendVerificationEmail(user.email, verifyToken);
     if (!result.ok) {
       return NextResponse.json({ success: false, error: result.error || "Failed to send email" }, { status: 500 });
     }

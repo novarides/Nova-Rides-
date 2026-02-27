@@ -47,6 +47,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
           password_hash: hashedPassword,
           role: role === "host" ? "host" : "renter",
           verified: false,
+          email_verify_token: verifyToken,
+          email_verify_expires: verifyExpires,
           first_name: firstName,
           last_name: lastName,
           phone: phone || null,

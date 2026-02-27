@@ -2,10 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStore, setStore, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { ApiResponse } from "@/lib/types";
+import { hasSupabase, getSupabaseClient, mapSupabaseUser, SupabaseUserRow } from "@/lib/supabase";
 
 export async function GET() {
   try {
     const { user } = await requireAuth();
+
+    if (hasSupabase()) {
+      const supabase = getSupabaseClient();
+      const { data, error } = await supabase
+        .from("users")
+        .select<"*", SupabaseUserRow>("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error || !data) {
+        return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+      }
+      const profile = mapSupabaseUser(data);
+      return NextResponse.json({ success: true, data: profile });
+    }
+
     const store = getStore();
     const u = store.users.find((x) => x.id === user.id);
     if (!u) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
@@ -21,6 +37,26 @@ export async function PATCH(request: NextRequest) {
   try {
     const { user } = await requireAuth();
     const body = await request.json();
+
+    if (hasSupabase()) {
+      const supabase = getSupabaseClient();
+      const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (body.firstName != null) updates.first_name = String(body.firstName);
+      if (body.lastName != null) updates.last_name = String(body.lastName);
+      if (body.phone !== undefined) updates.phone = body.phone === "" ? null : String(body.phone);
+      const { data, error } = await supabase
+        .from("users")
+        .update(updates)
+        .eq("id", user.id)
+        .select<"*", SupabaseUserRow>("*")
+        .single();
+      if (error || !data) {
+        return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+      }
+      const profile = mapSupabaseUser(data);
+      return NextResponse.json({ success: true, data: profile });
+    }
+
     const store = getStore();
     const idx = store.users.findIndex((x) => x.id === user.id);
     if (idx === -1) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
