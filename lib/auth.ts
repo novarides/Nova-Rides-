@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { User, UserRole } from "./types";
+import { hasSupabase, getSupabaseClient, mapSupabaseUser, SupabaseUserRow } from "./supabase";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "nova-rides-dev-secret-change-in-production"
@@ -40,8 +41,28 @@ export async function getSession(): Promise<{ user: User; token: string } | null
   if (!token) return null;
   const payload = await verifyToken(token);
   if (!payload) return null;
-  const { getStore } = await import("./store");
-  const user = getStore().users.find((u) => u.id === payload.sub);
+  let user: User | null = null;
+
+  if (hasSupabase()) {
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase
+      .from("users")
+      .select<"*", SupabaseUserRow>("*")
+      .eq("id", payload.sub)
+      .maybeSingle();
+    if (error) {
+      console.error("[Nova Rides] Supabase getSession error:", error);
+    }
+    if (data) {
+      user = mapSupabaseUser(data);
+    }
+  }
+
+  if (!user) {
+    const { getStore } = await import("./store");
+    user = getStore().users.find((u) => u.id === payload.sub) || null;
+  }
+
   if (!user || user.banned) return null;
   return { user, token };
 }

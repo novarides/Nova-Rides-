@@ -5,6 +5,7 @@ import { signToken } from "@/lib/auth";
 import { sendVerificationEmail } from "@/lib/email";
 import { User } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
+import { hasSupabase, getSupabaseClient, mapSupabaseUser, SupabaseUserRow } from "@/lib/supabase";
 
 const VERIFY_EXPIRY_HOURS = 24;
 
@@ -18,34 +19,76 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
         { status: 400 }
       );
     }
-    const store = getStore();
-    if (store.users.some((u) => u.email === email)) {
-      return NextResponse.json({ success: false, error: "Email already registered" }, { status: 409 });
-    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const verifyToken = generateId();
     const verifyExpires = new Date(Date.now() + VERIFY_EXPIRY_HOURS * 60 * 60 * 1000).toISOString();
-    const user: User = {
-      id: generateId(),
-      email,
-      phone: phone || undefined,
-      role: role === "host" ? "host" : "renter",
-      verified: false,
-      emailVerifyToken: verifyToken,
-      emailVerifyExpires: verifyExpires,
-      identityVerified: false,
-      licenseVerified: false,
-      firstName,
-      lastName,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      acceptedTerms: body.acceptedTerms === true,
-      acceptedPrivacy: body.acceptedPrivacy === true,
-    };
-    (user as User & { passwordHash?: string }).passwordHash = hashedPassword;
-    store.users.push(user);
-    setStore(store);
-    persistStore();
+
+    let user: User;
+
+    if (hasSupabase()) {
+      const supabase = getSupabaseClient();
+      const { data: existing, error: existingErr } = await supabase
+        .from("users")
+        .select<"*", SupabaseUserRow>("*")
+        .eq("email", email)
+        .maybeSingle();
+      if (existing) {
+        return NextResponse.json({ success: false, error: "Email already registered" }, { status: 409 });
+      }
+      if (existingErr && existingErr.code !== "PGRST116") {
+        console.error("[Nova Rides] Supabase lookup error:", existingErr);
+      }
+
+      const now = new Date().toISOString();
+      const { data: created, error: insertErr } = await supabase
+        .from("users")
+        .insert({
+          email,
+          password_hash: hashedPassword,
+          role: role === "host" ? "host" : "renter",
+          verified: false,
+          first_name: firstName,
+          last_name: lastName,
+          phone: phone || null,
+          created_at: now,
+          updated_at: now,
+        })
+        .select("*")
+        .single<SupabaseUserRow>();
+
+      if (insertErr || !created) {
+        console.error("[Nova Rides] Supabase insert error:", insertErr);
+        return NextResponse.json({ success: false, error: "Could not create account. Please try again." }, { status: 500 });
+      }
+
+      user = mapSupabaseUser(created);
+    } else {
+      const store = getStore();
+      if (store.users.some((u) => u.email === email)) {
+        return NextResponse.json({ success: false, error: "Email already registered" }, { status: 409 });
+      }
+      user = {
+        id: generateId(),
+        email,
+        phone: phone || undefined,
+        role: role === "host" ? "host" : "renter",
+        verified: false,
+        emailVerifyToken: verifyToken,
+        emailVerifyExpires: verifyExpires,
+        identityVerified: false,
+        licenseVerified: false,
+        firstName,
+        lastName,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        acceptedTerms: body.acceptedTerms === true,
+        acceptedPrivacy: body.acceptedPrivacy === true,
+      };
+      (user as User & { passwordHash?: string }).passwordHash = hashedPassword;
+      store.users.push(user);
+      setStore(store);
+      persistStore();
+    }
 
     const emailResult = await sendVerificationEmail(email, verifyToken);
     if (!emailResult.ok && emailResult.error) {
