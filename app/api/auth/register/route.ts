@@ -40,27 +40,49 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }
 
       const now = new Date().toISOString();
-      const { data: created, error: insertErr } = await supabase
+      const baseRow = {
+        email,
+        password_hash: hashedPassword,
+        role: role === "host" ? "host" : "renter",
+        verified: false,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone || null,
+        created_at: now,
+        updated_at: now,
+      };
+
+      const withVerify = {
+        ...baseRow,
+        email_verify_token: verifyToken,
+        email_verify_expires: verifyExpires,
+      };
+
+      const { data: dataWithVerify, error: errWithVerify } = await supabase
         .from("users")
-        .insert({
-          email,
-          password_hash: hashedPassword,
-          role: role === "host" ? "host" : "renter",
-          verified: false,
-          email_verify_token: verifyToken,
-          email_verify_expires: verifyExpires,
-          first_name: firstName,
-          last_name: lastName,
-          phone: phone || null,
-          created_at: now,
-          updated_at: now,
-        })
+        .insert(withVerify)
         .select("*")
         .single<SupabaseUserRow>();
 
-      if (insertErr || !created) {
-        console.error("[Nova Rides] Supabase insert error:", insertErr);
-        return NextResponse.json({ success: false, error: "Could not create account. Please try again." }, { status: 500 });
+      let created: SupabaseUserRow | null = dataWithVerify;
+      if (errWithVerify) {
+        const { data: dataMinimal, error: errMinimal } = await supabase
+          .from("users")
+          .insert(baseRow)
+          .select("*")
+          .single<SupabaseUserRow>();
+        if (errMinimal || !dataMinimal) {
+          console.error("[Nova Rides] Supabase insert error:", errWithVerify, "fallback:", errMinimal);
+          return NextResponse.json(
+            { success: false, error: "Could not create account. If using Supabase, run the migration in SUPABASE.md to add email_verify_token and email_verify_expires." },
+            { status: 500 }
+          );
+        }
+        created = dataMinimal;
+      }
+
+      if (!created) {
+        return NextResponse.json({ success: false, error: "Could not create account." }, { status: 500 });
       }
 
       user = mapSupabaseUser(created);

@@ -24,8 +24,8 @@ export interface SupabaseUserRow {
   password_hash: string | null;
   role: "host" | "renter" | "admin";
   verified: boolean;
-  email_verify_token: string | null;
-  email_verify_expires: string | null;
+  email_verify_token?: string | null;
+  email_verify_expires?: string | null;
   banned: boolean | null;
   banned_at: string | null;
   banned_reason: string | null;
