@@ -3,6 +3,7 @@ import { getStore, setStore, persistStore } from "@/lib/store";
 import { requireAuth } from "@/lib/auth";
 import { ApiResponse } from "@/lib/types";
 import { UserRole } from "@/lib/types";
+import { hasSupabase, getSupabaseClient } from "@/lib/supabase";
 
 export async function PATCH(
   request: NextRequest
@@ -17,15 +18,26 @@ export async function PATCH(
         { status: 400 }
       );
     }
+    const now = new Date().toISOString();
 
-    const store = getStore();
-    const idx = store.users.findIndex((u) => u.id === user.id);
-    if (idx === -1) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
-
-    store.users[idx].role = role;
-    store.users[idx].updatedAt = new Date().toISOString();
-    setStore(store);
-    persistStore();
+    if (hasSupabase()) {
+      const supabase = getSupabaseClient();
+      const { error } = await supabase
+        .from("users")
+        .update({ role, updated_at: now })
+        .eq("id", user.id);
+      if (error) {
+        return NextResponse.json({ success: false, error: "Could not switch mode" }, { status: 500 });
+      }
+    } else {
+      const store = getStore();
+      const idx = store.users.findIndex((u) => u.id === user.id);
+      if (idx === -1) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+      store.users[idx].role = role;
+      store.users[idx].updatedAt = now;
+      setStore(store);
+      persistStore();
+    }
 
     return NextResponse.json({ success: true, data: { role } });
   } catch (e) {
