@@ -3,15 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --nova-bg: #0a0e17;
-  --nova-surface: #111827;
-  --nova-card: #1a2234;
-  --nova-border: #2d3a4f;
-  --nova-accent: #f59e0b;
-  --nova-accent-dim: #d97706;
-  --nova-muted: #64748b;
-  --nova-text: #f1f5f9;
-  --nova-text-muted: #94a3b8;
+  --black: #0A0A0A;
+  --white: #FAFAF8;
+  --grey-100: #F4F4F1;
+  --grey-200: #E8E8E4;
+  --grey-400: #ADADAA;
+  --grey-600: #6B6B68;
+  --accent: #E8A020;
+  --accent-light: #FFF4E0;
+  --radius: 14px;
+  /* Legacy names for components */
+  --nova-bg: var(--white);
+  --nova-surface: var(--white);
+  --nova-card: var(--white);
+  --nova-border: var(--grey-200);
+  --nova-accent: var(--accent);
+  --nova-accent-dim: #d4901a;
+  --nova-muted: var(--grey-600);
+  --nova-text: var(--black);
+  --nova-text-muted: var(--grey-600);
 }
 
 * {
@@ -23,22 +33,33 @@ html {
 }
 
 body {
-  background: var(--nova-bg);
-  color: var(--nova-text);
+  background: var(--white);
+  color: var(--black);
   font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-5 py-2.5 rounded-lg transition;
+    @apply bg-[var(--accent)] hover:bg-[#d4901a] text-[var(--black)] font-semibold px-5 py-2.5 rounded-lg transition font-display;
   }
   .btn-secondary {
-    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 font-medium px-5 py-2.5 rounded-lg border border-slate-600 transition;
+    @apply bg-[var(--grey-100)] hover:bg-[var(--grey-200)] text-[var(--black)] font-medium px-5 py-2.5 rounded-lg border border-[var(--grey-200)] transition;
   }
   .input-field {
-    @apply w-full bg-slate-800/80 border border-slate-600 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition;
+    @apply w-full rounded-lg px-4 py-2.5 outline-none transition;
+    background: var(--white);
+    border: 1px solid var(--grey-200);
+    color: var(--black);
+  }
+  .input-field::placeholder {
+    color: var(--grey-400);
+  }
+  .input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.2);
   }
   .card {
-    @apply bg-slate-800/60 border border-slate-700/80 rounded-xl overflow-hidden;
+    @apply bg-[var(--white)] border border-[var(--grey-200)] rounded-[var(--radius)] overflow-hidden;
   }
 }

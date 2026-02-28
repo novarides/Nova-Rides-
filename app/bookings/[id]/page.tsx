@@ -248,31 +248,31 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-slate-400">Booking not found.</p>
-        <Link href="/search" className="mt-4 inline-block text-amber-400 hover:text-amber-300">Back to search</Link>
+        <p className="text-[var(--grey-600)]">Booking not found.</p>
+        <Link href="/search" className="mt-4 inline-block text-[var(--accent)] hover:opacity-80">Back to search</Link>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <Link href={isHost ? "/dashboard/host" : "/search"} className="text-sm text-slate-400 hover:text-white">← Back to {isHost ? "host dashboard" : "search"}</Link>
+      <Link href={isHost ? "/dashboard/host" : "/search"} className="text-sm text-[var(--grey-600)] hover:text-[var(--black)]">← Back to {isHost ? "host dashboard" : "search"}</Link>
       <div className="card mt-6 p-6">
-        <h1 className="font-display text-xl font-bold text-white">
+        <h1 className="font-display text-xl font-bold text-[var(--black)]">
           {isHost ? (isPending ? "Booking request" : "Booking details") : isPending ? "Booking requested" : "Booking confirmed"}
         </h1>
-        {vehicle && <p className="mt-1 text-slate-400">{vehicle.title}</p>}
+        {vehicle && <p className="mt-1 text-[var(--grey-600)]">{vehicle.title}</p>}
         {isHost && booking?.renterSummary && (
-          <div className="mt-3 rounded-lg border border-slate-600 bg-slate-800/30 p-3">
-            <p className="text-sm font-medium text-white">Guest: {booking.renterSummary.firstName} {booking.renterSummary.lastName}</p>
-            <p className="text-sm text-slate-400">
+          <div className="mt-3 rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-3">
+            <p className="text-sm font-medium text-[var(--black)]">Guest: {booking.renterSummary.firstName} {booking.renterSummary.lastName}</p>
+            <p className="text-sm text-[var(--grey-600)]">
               {booking.renterSummary.reviewCount > 0 ? <>★ {booking.renterSummary.rating} ({booking.renterSummary.reviewCount} reviews)</> : "No reviews yet"}
             </p>
             {booking.reviewsAboutRenter && booking.reviewsAboutRenter.length > 0 && (
               <div className="mt-2 space-y-1">
-                <p className="text-xs text-slate-500">Reviews from other hosts</p>
+                <p className="text-xs text-[var(--grey-600)]">Reviews from other hosts</p>
                 {booking.reviewsAboutRenter.slice(0, 3).map((r, i) => (
-                  <p key={i} className="text-xs text-slate-300">★ {r.rating} — {r.comment || "—"}</p>
+                  <p key={i} className="text-xs text-[var(--grey-600)]">★ {r.rating} — {r.comment || "—"}</p>
                 ))}
               </div>
             )}
@@ -280,35 +280,35 @@ export default function BookingDetailPage() {
         )}
         <dl className="mt-6 grid grid-cols-2 gap-4">
           <div>
-            <dt className="text-xs text-slate-500">Start</dt>
-            <dd className="text-white">{new Date(booking.startDate).toLocaleDateString()}</dd>
+            <dt className="text-xs text-[var(--grey-600)]">Start</dt>
+            <dd className="text-[var(--black)]">{new Date(booking.startDate).toLocaleDateString()}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">End</dt>
-            <dd className="text-white">{new Date(booking.endDate).toLocaleDateString()}</dd>
+            <dt className="text-xs text-[var(--grey-600)]">End</dt>
+            <dd className="text-[var(--black)]">{new Date(booking.endDate).toLocaleDateString()}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">Status</dt>
-            <dd className="text-white capitalize">{booking.status}</dd>
+            <dt className="text-xs text-[var(--grey-600)]">Status</dt>
+            <dd className="text-[var(--black)] capitalize">{booking.status}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">Payment</dt>
-            <dd className="text-white capitalize">{booking.paymentStatus}</dd>
+            <dt className="text-xs text-[var(--grey-600)]">Payment</dt>
+            <dd className="text-[var(--black)] capitalize">{booking.paymentStatus}</dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">Total</dt>
-            <dd className="text-amber-400 font-semibold">
+            <dt className="text-xs text-[var(--grey-600)]">Total</dt>
+            <dd className="text-[var(--accent)] font-semibold">
               {vehicle?.currency || "NGN"} {booking.totalPrice.toLocaleString()}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-slate-500">Security deposit</dt>
-            <dd className="text-slate-300">{vehicle?.currency || "NGN"} {booking.securityDeposit.toLocaleString()}</dd>
+            <dt className="text-xs text-[var(--grey-600)]">Security deposit</dt>
+            <dd className="text-[var(--grey-600)]">{vehicle?.currency || "NGN"} {booking.securityDeposit.toLocaleString()}</dd>
           </div>
         </dl>
 
         {isPending && !isHost && (
-          <p className="mt-6 rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-3 text-sm text-amber-200">
+          <p className="mt-6 rounded-lg bg-[var(--accent-light)] border border-[var(--accent)]/30 px-4 py-3 text-sm text-[var(--accent)]">
             Waiting for the host to confirm your request. You’ll be able to pay once it’s confirmed.
           </p>
         )}
@@ -321,14 +321,14 @@ export default function BookingDetailPage() {
         )}
 
         {isHost && booking?.status === "completed" && !booking.hasHostReviewedGuest && booking.renterId && (
-          <div className="mt-6 rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-            <h3 className="text-sm font-medium text-white">Rate this guest</h3>
+          <div className="mt-6 rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+            <h3 className="text-sm font-medium text-[var(--black)]">Rate this guest</h3>
             <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="input-field mt-2 py-1.5 text-sm">
               {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} ★</option>)}
             </select>
             <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="input-field mt-2 w-full min-h-[80px] text-sm" placeholder="How was this guest? (optional)" />
             {reviewError && <p className="mt-2 text-sm text-red-400">{reviewError}</p>}
-            <button type="button" onClick={handleSubmitReview} disabled={submittingReview} className="mt-3 rounded bg-amber-600 px-3 py-1.5 text-sm text-white hover:bg-amber-500 disabled:opacity-50">{submittingReview ? "Submitting…" : "Submit review"}</button>
+            <button type="button" onClick={handleSubmitReview} disabled={submittingReview} className="mt-3 rounded bg-[var(--accent)] px-3 py-1.5 text-sm text-[var(--black)] hover:opacity-90 disabled:opacity-50">{submittingReview ? "Submitting…" : "Submit review"}</button>
           </div>
         )}
 
@@ -337,15 +337,15 @@ export default function BookingDetailPage() {
         )}
 
         {!isHost && booking?.status === "completed" && !booking.hasRenterReviewedHost && booking.hostId && (
-          <div className="mt-6 rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-            <h3 className="text-sm font-medium text-white">Rate this host</h3>
-            <p className="mt-1 text-xs text-slate-400">How was your experience with {booking.hostSummary?.firstName ?? "the host"}?</p>
+          <div className="mt-6 rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+            <h3 className="text-sm font-medium text-[var(--black)]">Rate this host</h3>
+            <p className="mt-1 text-xs text-[var(--grey-600)]">How was your experience with {booking.hostSummary?.firstName ?? "the host"}?</p>
             <select value={reviewRating} onChange={(e) => setReviewRating(Number(e.target.value))} className="input-field mt-2 py-1.5 text-sm">
               {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} ★</option>)}
             </select>
             <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="input-field mt-2 w-full min-h-[80px] text-sm" placeholder="How was your host? (optional)" />
             {reviewError && <p className="mt-2 text-sm text-red-400">{reviewError}</p>}
-            <button type="button" onClick={handleSubmitHostReview} disabled={submittingReview} className="mt-3 rounded bg-amber-600 px-3 py-1.5 text-sm text-white hover:bg-amber-500 disabled:opacity-50">{submittingReview ? "Submitting…" : "Submit review"}</button>
+            <button type="button" onClick={handleSubmitHostReview} disabled={submittingReview} className="mt-3 rounded bg-[var(--accent)] px-3 py-1.5 text-sm text-[var(--black)] hover:opacity-90 disabled:opacity-50">{submittingReview ? "Submitting…" : "Submit review"}</button>
           </div>
         )}
 
@@ -355,7 +355,7 @@ export default function BookingDetailPage() {
 
         {canPay && (
           <div className="mt-6 space-y-3">
-            <p className="text-sm font-medium text-slate-300">Pay {vehicle?.currency || "NGN"} {totalAmount.toLocaleString()}</p>
+            <p className="text-sm font-medium text-[var(--grey-600)]">Pay {vehicle?.currency || "NGN"} {totalAmount.toLocaleString()}</p>
             <div className="flex flex-col gap-2">
               {paymentConfig.paystack && (
                 <button
@@ -389,7 +389,7 @@ export default function BookingDetailPage() {
               )}
             </div>
             {!paymentConfig.paystack && !paymentConfig.stripe && (
-              <p className="text-xs text-slate-500">Set PAYSTACK_SECRET_KEY and/or STRIPE_SECRET_KEY for live payments.</p>
+              <p className="text-xs text-[var(--grey-600)]">Set PAYSTACK_SECRET_KEY and/or STRIPE_SECRET_KEY for live payments.</p>
             )}
           </div>
         )}

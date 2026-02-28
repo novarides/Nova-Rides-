@@ -48,76 +48,90 @@ export function Header() {
     }
   };
 
+  const linkClass = (active: boolean) =>
+    `text-sm font-medium px-3.5 py-2 rounded-lg transition ${active ? "text-[var(--black)] font-semibold bg-[var(--grey-100)]" : "text-[var(--grey-600)] hover:text-[var(--black)] hover:bg-[var(--grey-100)]"}`;
+
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="font-display text-xl font-bold tracking-tight text-amber-400">
-          Nova Rides
+    <header className="sticky top-0 z-50 flex h-[68px] items-center justify-between border-b border-[var(--grey-200)] bg-[var(--white)] px-6 md:px-12">
+      <Link href="/" className="font-display text-xl font-bold tracking-tight text-[var(--black)]">
+        Nova<span className="text-[var(--accent)]">Rides</span>
+      </Link>
+      <nav className="flex items-center gap-1">
+        <Link href="/search" className={linkClass(pathname === "/search" || pathname === "/")}>
+          Find a car
         </Link>
-        <nav className="flex items-center gap-6">
-          <Link
-            href="/search"
-            className={`text-sm font-medium ${pathname === "/search" ? "text-amber-400" : "text-slate-300 hover:text-white"}`}
-          >
-            Find a car
-          </Link>
-          {user ? (
-            <>
-              {user.role !== "admin" && (
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/dashboard/host"
-                    onClick={(e) => { if (user.role !== "host") { e.preventDefault(); handleSwitchAndGo("host"); } }}
-                    className={`text-sm font-medium ${pathname === "/dashboard/host" ? "text-amber-400" : "text-slate-300 hover:text-white"} ${switching ? "pointer-events-none opacity-60" : ""}`}
-                  >
-                    Host
-                  </Link>
-                  <span className="text-slate-600">|</span>
-                  <Link
-                    href="/dashboard/renter"
-                    onClick={(e) => { if (user.role !== "renter") { e.preventDefault(); handleSwitchAndGo("renter"); } }}
-                    className={`text-sm font-medium ${pathname === "/dashboard/renter" ? "text-amber-400" : "text-slate-300 hover:text-white"} ${switching ? "pointer-events-none opacity-60" : ""}`}
-                  >
-                    Renter
-                  </Link>
-                </div>
-              )}
-              {user.role === "admin" && (
-                <Link href="/dashboard/admin" className="text-sm font-medium text-slate-300 hover:text-white">
-                  Dashboard
+        {user ? (
+          <>
+            {user.role !== "admin" && (
+              <>
+                <Link
+                  href="/dashboard/host"
+                  onClick={(e) => {
+                    if (user.role !== "host") {
+                      e.preventDefault();
+                      handleSwitchAndGo("host");
+                    }
+                  }}
+                  className={`${linkClass(pathname === "/dashboard/host")} ${switching ? "pointer-events-none opacity-60" : ""}`}
+                >
+                  Host
                 </Link>
-              )}
-              <Link href="/profile" className="flex items-center gap-2 text-sm text-slate-400 hover:text-white">
+                <Link
+                  href="/dashboard/renter"
+                  onClick={(e) => {
+                    if (user.role !== "renter") {
+                      e.preventDefault();
+                      handleSwitchAndGo("renter");
+                    }
+                  }}
+                  className={`${linkClass(pathname === "/dashboard/renter")} ${switching ? "pointer-events-none opacity-60" : ""}`}
+                >
+                  Renter
+                </Link>
+              </>
+            )}
+            {user.role === "admin" && (
+              <Link href="/dashboard/admin" className={linkClass(pathname === "/dashboard/admin")}>
+                Dashboard
+              </Link>
+            )}
+            <div className="ml-2 flex items-center gap-3 border-l border-[var(--grey-200)] pl-4">
+              <Link href="/profile" className="flex items-center gap-2">
                 {user.avatar ? (
-                  <img src={user.avatar} alt="" className="h-8 w-8 rounded-full object-cover ring-1 ring-slate-600" />
+                  <img src={user.avatar} alt="" className="h-9 w-9 rounded-full object-cover" />
                 ) : (
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-xs font-medium text-slate-300">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--black)] font-display text-[13px] font-semibold text-[var(--white)]">
                     {user.firstName[0]}
                     {user.lastName[0]}
                   </span>
                 )}
-                <span className="text-slate-500">{user.firstName} {user.lastName}</span>
+                <span className="text-sm font-medium text-[var(--black)] hidden sm:inline">
+                  {user.firstName} {user.lastName}
+                </span>
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-sm font-medium text-slate-400 hover:text-white"
+                className="text-[13px] text-[var(--grey-600)] hover:text-[var(--black)] hover:bg-[var(--grey-100)] px-3 py-2 rounded-lg transition"
               >
                 Log out
               </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white">
-                Log in
-              </Link>
-              <Link href="/register" className="btn-primary text-sm">
-                Sign up
-              </Link>
-            </>
-          )}
-        </nav>
-      </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <Link href="/how-it-works" className={linkClass(pathname === "/how-it-works")}>
+              How it works
+            </Link>
+            <Link href="/login" className={linkClass(pathname === "/login")}>
+              Log in
+            </Link>
+            <Link href="/register" className="btn-primary text-sm ml-1">
+              Sign up
+            </Link>
+          </>
+        )}
+      </nav>
     </header>
   );
 }

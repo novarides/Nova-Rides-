@@ -31,8 +31,8 @@ function VerifyContent() {
   if (status === "checking") {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <div className="inline-block h-10 w-10 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-        <p className="mt-4 text-slate-400">Verifying your email…</p>
+        <div className="inline-block h-10 w-10 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
+        <p className="mt-4 text-[var(--grey-600)]">Verifying your email…</p>
       </div>
     );
   }
@@ -41,8 +41,8 @@ function VerifyContent() {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500/20 text-green-400 text-2xl">✓</div>
-        <h1 className="mt-4 font-display text-xl font-bold text-white">Email verified</h1>
-        <p className="mt-2 text-slate-400">Your Nova Rides account is verified. You can now use all features.</p>
+        <h1 className="mt-4 font-display text-xl font-bold text-[var(--black)]">Email verified</h1>
+        <p className="mt-2 text-[var(--grey-600)]">Your Nova Rides account is verified. You can now use all features.</p>
         <Link href="/" className="mt-6 inline-block btn-primary">Go to Nova Rides</Link>
       </div>
     );
@@ -51,8 +51,8 @@ function VerifyContent() {
   return (
     <div className="mx-auto max-w-md px-4 py-16 text-center">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-500/20 text-red-400 text-2xl">✕</div>
-      <h1 className="mt-4 font-display text-xl font-bold text-white">Verification failed</h1>
-      <p className="mt-2 text-slate-400">{error}</p>
+      <h1 className="mt-4 font-display text-xl font-bold text-[var(--black)]">Verification failed</h1>
+      <p className="mt-2 text-[var(--grey-600)]">{error}</p>
       <Link href="/" className="mt-6 inline-block btn-secondary">Back to home</Link>
     </div>
   );
@@ -60,7 +60,7 @@ function VerifyContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="py-16 text-center text-slate-400">Loading…</div>}>
+    <Suspense fallback={<div className="py-16 text-center text-[var(--grey-600)]">Loading…</div>}>
       <VerifyContent />
     </Suspense>
   );

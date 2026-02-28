@@ -104,7 +104,7 @@ export default function AdminPage() {
   if (auth === "loading") {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
       </div>
     );
   }
@@ -112,28 +112,28 @@ export default function AdminPage() {
   if (auth === "denied") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="font-display text-xl font-bold text-white">Admin access required</h1>
-        <p className="mt-2 text-slate-400">Only admins can view this panel.</p>
+        <h1 className="font-display text-xl font-bold text-[var(--black)]">Admin access required</h1>
+        <p className="mt-2 text-[var(--grey-600)]">Only admins can view this panel.</p>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">Admin panel</h1>
-      <p className="mt-1 text-slate-400">User management, vehicle approval, bookings, disputes, payouts, analytics.</p>
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">Admin panel</h1>
+      <p className="mt-1 text-[var(--grey-600)]">User management, vehicle approval, bookings, disputes, payouts, analytics.</p>
 
       <section className="mt-8">
-        <h2 className="font-display text-lg font-bold text-white">User management – permanent ban</h2>
-        <p className="mt-1 text-sm text-slate-400">Ban users who break rules. Banned users cannot log in or use the platform. Admins cannot be banned.</p>
+        <h2 className="font-display text-lg font-bold text-[var(--black)]">User management – permanent ban</h2>
+        <p className="mt-1 text-sm text-[var(--grey-600)]">Ban users who break rules. Banned users cannot log in or use the platform. Admins cannot be banned.</p>
         {userError && <p className="mt-2 text-sm text-red-400">{userError}</p>}
         {usersLoading ? (
-          <div className="card mt-4 p-8 text-center text-slate-400">Loading users…</div>
+          <div className="card mt-4 p-8 text-center text-[var(--grey-600)]">Loading users…</div>
         ) : (
           <div className="card mt-4 overflow-x-auto">
             <table className="w-full min-w-[600px] text-left text-sm">
               <thead>
-                <tr className="border-b border-slate-600 text-slate-400">
+                <tr className="border-b border-[var(--grey-200)] text-[var(--grey-600)]">
                   <th className="p-3 font-medium">User</th>
                   <th className="p-3 font-medium">Role</th>
                   <th className="p-3 font-medium">Status</th>
@@ -142,31 +142,31 @@ export default function AdminPage() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-700/50">
+                  <tr key={u.id} className="border-b border-[var(--grey-200)]">
                     <td className="p-3">
-                      <p className="font-medium text-white">{u.firstName} {u.lastName}</p>
-                      <p className="text-slate-400">{u.email}</p>
+                      <p className="font-medium text-[var(--black)]">{u.firstName} {u.lastName}</p>
+                      <p className="text-[var(--grey-600)]">{u.email}</p>
                       {u.banned && u.bannedReason && (
                         <p className="mt-1 text-xs text-red-400">Ban reason: {u.bannedReason}</p>
                       )}
                     </td>
-                    <td className="p-3 text-slate-300 capitalize">{u.role}</td>
+                    <td className="p-3 text-[var(--grey-600)] capitalize">{u.role}</td>
                     <td className="p-3">
                       {u.banned ? (
                         <span className="rounded bg-red-500/20 px-2 py-0.5 text-xs text-red-400">Banned</span>
                       ) : (
-                        <span className="rounded bg-slate-700 px-2 py-0.5 text-xs text-slate-400">Active</span>
+                        <span className="rounded bg-[var(--grey-200)] px-2 py-0.5 text-xs text-[var(--grey-600)]">Active</span>
                       )}
                     </td>
                     <td className="p-3 text-right">
                       {u.role === "admin" ? (
-                        <span className="text-xs text-slate-500">—</span>
+                        <span className="text-xs text-[var(--grey-600)]">—</span>
                       ) : u.banned ? (
                         <button
                           type="button"
                           onClick={() => handleUnban(u.id)}
                           disabled={actingId === u.id}
-                          className="rounded bg-slate-600 px-2 py-1 text-xs text-white hover:bg-slate-500 disabled:opacity-50"
+                          className="rounded bg-[var(--grey-200)] px-2 py-1 text-xs text-[var(--black)] hover:bg-[var(--grey-400)] disabled:opacity-50"
                         >
                           {actingId === u.id ? "…" : "Unban"}
                         </button>
@@ -191,24 +191,24 @@ export default function AdminPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="card p-6">
-          <h2 className="font-medium text-white">Vehicle moderation</h2>
-          <p className="mt-1 text-sm text-slate-500">Approve or reject listings.</p>
+          <h2 className="font-medium text-[var(--black)]">Vehicle moderation</h2>
+          <p className="mt-1 text-sm text-[var(--grey-600)]">Approve or reject listings.</p>
         </div>
         <div className="card p-6">
-          <h2 className="font-medium text-white">Booking oversight</h2>
-          <p className="mt-1 text-sm text-slate-500">Dispute resolution, refunds.</p>
+          <h2 className="font-medium text-[var(--black)]">Booking oversight</h2>
+          <p className="mt-1 text-sm text-[var(--grey-600)]">Dispute resolution, refunds.</p>
         </div>
         <div className="card p-6">
-          <h2 className="font-medium text-white">Platform fees</h2>
-          <p className="mt-1 text-sm text-slate-500">Configure fees and payouts.</p>
+          <h2 className="font-medium text-[var(--black)]">Platform fees</h2>
+          <p className="mt-1 text-sm text-[var(--grey-600)]">Configure fees and payouts.</p>
         </div>
         <div className="card p-6">
-          <h2 className="font-medium text-white">Analytics & reports</h2>
-          <p className="mt-1 text-sm text-slate-500">Dashboard and exports.</p>
+          <h2 className="font-medium text-[var(--black)]">Analytics & reports</h2>
+          <p className="mt-1 text-sm text-[var(--grey-600)]">Dashboard and exports.</p>
         </div>
         <div className="card p-6">
-          <h2 className="font-medium text-white">CMS</h2>
-          <p className="mt-1 text-sm text-slate-500">FAQs, policies, promo codes.</p>
+          <h2 className="font-medium text-[var(--black)]">CMS</h2>
+          <p className="mt-1 text-sm text-[var(--grey-600)]">FAQs, policies, promo codes.</p>
         </div>
       </div>
     </div>

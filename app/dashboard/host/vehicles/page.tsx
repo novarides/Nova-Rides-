@@ -29,24 +29,24 @@ export default function HostVehiclesPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-white">My vehicles</h1>
+        <h1 className="font-display text-2xl font-bold text-[var(--black)]">My vehicles</h1>
         <Link href="/dashboard/host/vehicles/new" className="btn-primary">Add vehicle</Link>
       </div>
       {vehicles.length === 0 ? (
-        <div className="card mt-8 p-12 text-center text-slate-500">
-          No vehicles. <Link href="/dashboard/host/vehicles/new" className="text-amber-400 hover:underline">List your first car</Link>
+        <div className="card mt-8 p-12 text-center text-[var(--grey-600)]">
+          No vehicles. <Link href="/dashboard/host/vehicles/new" className="text-[var(--accent)] hover:underline">List your first car</Link>
         </div>
       ) : (
         <ul className="mt-6 space-y-3">
           {vehicles.map((v) => (
             <li key={v.id} className="card flex items-center justify-between p-4">
               <div>
-                <p className="font-medium text-white">{v.title}</p>
-                <p className="text-sm text-slate-500">{v.currency} {v.pricePerDay.toLocaleString()}/day · {v.status}</p>
+                <p className="font-medium text-[var(--black)]">{v.title}</p>
+                <p className="text-sm text-[var(--grey-600)]">{v.currency} {v.pricePerDay.toLocaleString()}/day · {v.status}</p>
               </div>
               <div className="flex gap-3">
-                <Link href={"/dashboard/host/vehicles/" + v.id + "/edit"} className="text-sm text-amber-400 hover:text-amber-300">Edit</Link>
-                <Link href={"/vehicles/" + v.id} className="text-sm text-slate-400 hover:text-white">View</Link>
+                <Link href={"/dashboard/host/vehicles/" + v.id + "/edit"} className="text-sm text-[var(--accent)] hover:opacity-80">Edit</Link>
+                <Link href={"/vehicles/" + v.id} className="text-sm text-[var(--grey-600)] hover:text-[var(--black)]">View</Link>
               </div>
             </li>
           ))}

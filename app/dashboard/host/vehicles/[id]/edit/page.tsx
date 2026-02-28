@@ -124,7 +124,7 @@ export default function EditVehiclePage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
         <p className="text-red-400">{loadError}</p>
-        <Link href="/dashboard/host/vehicles" className="mt-4 inline-block text-amber-400 hover:text-amber-300">← Back to my vehicles</Link>
+        <Link href="/dashboard/host/vehicles" className="mt-4 inline-block text-[var(--accent)] hover:opacity-80">← Back to my vehicles</Link>
       </div>
     );
   }
@@ -132,8 +132,8 @@ export default function EditVehiclePage() {
   if (!form) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-        <p className="mt-4 text-slate-400">Loading…</p>
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
+        <p className="mt-4 text-[var(--grey-600)]">Loading…</p>
       </div>
     );
   }
@@ -143,12 +143,12 @@ export default function EditVehiclePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <Link href="/dashboard/host/vehicles" className="text-sm text-slate-400 hover:text-white">← Back to my vehicles</Link>
-      <h1 className="mt-6 font-display text-2xl font-bold text-white">Edit your vehicle</h1>
-      <p className="mt-1 text-slate-400">Update your listing details.</p>
+      <Link href="/dashboard/host/vehicles" className="text-sm text-[var(--grey-600)] hover:text-[var(--black)]">← Back to my vehicles</Link>
+      <h1 className="mt-6 font-display text-2xl font-bold text-[var(--black)]">Edit your vehicle</h1>
+      <p className="mt-1 text-[var(--grey-600)]">Update your listing details.</p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Listing title</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Listing title</label>
           <input
             type="text"
             value={form.title}
@@ -158,7 +158,7 @@ export default function EditVehiclePage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Description</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Description</label>
           <textarea
             value={form.description}
             onChange={(e) => setForm((f) => f ? { ...f, description: e.target.value } : null)}
@@ -168,7 +168,7 @@ export default function EditVehiclePage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Year</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Year</label>
             <input
               type="number"
               value={form.year}
@@ -179,30 +179,30 @@ export default function EditVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Make</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Make</label>
             <input type="text" value={form.make} onChange={(e) => setForm((f) => f ? { ...f, make: e.target.value } : null)} required className="input-field" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Model</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Model</label>
             <input type="text" value={form.model} onChange={(e) => setForm((f) => f ? { ...f, model: e.target.value } : null)} required className="input-field" />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">License plate</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">License plate</label>
             <input type="text" value={form.licensePlate || ""} onChange={(e) => setForm((f) => f ? { ...f, licensePlate: e.target.value } : null)} className="input-field" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">VIN</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">VIN</label>
             <input type="text" value={form.vin || ""} onChange={(e) => setForm((f) => f ? { ...f, vin: e.target.value } : null)} className="input-field" />
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Color</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Color</label>
           <input type="text" value={form.color || ""} onChange={(e) => setForm((f) => f ? { ...f, color: e.target.value } : null)} className="input-field" />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle class</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Vehicle class</label>
           <select
             value={form.vehicleClass}
             onChange={(e) => setForm((f) => f ? { ...f, vehicleClass: e.target.value } : null)}
@@ -213,11 +213,11 @@ export default function EditVehiclePage() {
             ))}
           </select>
         </div>
-        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-          <h3 className="text-sm font-medium text-white">Mileage per day (included)</h3>
+        <div className="rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+          <h3 className="text-sm font-medium text-[var(--black)]">Mileage per day (included)</h3>
           <div className="mt-3 flex flex-wrap items-end gap-4">
             <div>
-              <label className="mb-1 block text-xs text-slate-500">Value</label>
+              <label className="mb-1 block text-xs text-[var(--grey-600)]">Value</label>
               <input
                 type="number"
                 value={form.mileagePerDay || ""}
@@ -227,7 +227,7 @@ export default function EditVehiclePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-slate-500">Unit</label>
+              <label className="mb-1 block text-xs text-[var(--grey-600)]">Unit</label>
               <select
                 value={form.mileagePerDayUnit}
                 onChange={(e) => setForm((f) => f ? { ...f, mileagePerDayUnit: e.target.value as "km" | "miles" } : null)}
@@ -237,14 +237,14 @@ export default function EditVehiclePage() {
                 <option value="miles">miles</option>
               </select>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[var(--grey-600)]">
               = {form.mileagePerDayUnit === "km" ? mileageMiles.toFixed(1) : mileageKm} {form.mileagePerDayUnit === "km" ? "miles" : "km"} per day
             </p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Price per day ({form.currency})</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Price per day ({form.currency})</label>
             <input
               type="number"
               value={form.pricePerDay || ""}
@@ -255,7 +255,7 @@ export default function EditVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Price per week (optional)</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Price per week (optional)</label>
             <input
               type="number"
               value={form.pricePerWeek || ""}
@@ -267,7 +267,7 @@ export default function EditVehiclePage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Min rental days</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Min rental days</label>
             <input
               type="number"
               value={form.minRentalDays}
@@ -277,7 +277,7 @@ export default function EditVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Booking type</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Booking type</label>
             <select
               value={form.bookingType}
               onChange={(e) => setForm((f) => f ? { ...f, bookingType: e.target.value } : null)}
@@ -289,7 +289,7 @@ export default function EditVehiclePage() {
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">City</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">City</label>
           <input
             type="text"
             value={form.location.city}
@@ -299,7 +299,7 @@ export default function EditVehiclePage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Listing status</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Listing status</label>
           <select
             value={form.status}
             onChange={(e) => setForm((f) => f ? { ...f, status: e.target.value } : null)}
@@ -317,7 +317,7 @@ export default function EditVehiclePage() {
             {loading ? "Saving…" : "Save changes"}
           </button>
           <Link href={"/vehicles/" + id} className="btn-secondary">View listing</Link>
-          <button type="button" onClick={() => router.back()} className="text-slate-400 hover:text-white">
+          <button type="button" onClick={() => router.back()} className="text-[var(--grey-600)] hover:text-[var(--black)]">
             Cancel
           </button>
         </div>

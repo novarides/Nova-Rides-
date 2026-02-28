@@ -38,12 +38,12 @@ function SearchContent() {
   }, [searchParams]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">Find a car</h1>
-      <p className="mt-1 text-slate-400">Browse vehicles from Nova Rides hosts.</p>
+    <div className="mx-auto max-w-[1200px] px-6 py-10 md:px-12">
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">Find a car</h1>
+      <p className="mt-1 text-[var(--grey-600)]">Browse vehicles from Nova Rides hosts.</p>
       {loading ? (
         <div className="mt-8 flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
         </div>
       ) : (
         <VehicleGrid vehicles={vehicles} className="mt-8" />
@@ -54,7 +54,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-7xl px-4 py-12 text-center text-slate-400">Loading…</div>}>
+    <Suspense fallback={<div className="mx-auto max-w-[1200px] px-6 py-12 text-center text-[var(--grey-600)]">Loading…</div>}>
       <SearchContent />
     </Suspense>
   );

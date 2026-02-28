@@ -159,11 +159,11 @@ export default function NewVehiclePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">List your vehicle</h1>
-      <p className="mt-1 text-slate-400">Add a new car to Nova Rides.</p>
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">List your vehicle</h1>
+      <p className="mt-1 text-[var(--grey-600)]">Add a new car to Nova Rides.</p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Listing title</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Listing title</label>
           <input
             type="text"
             value={form.title}
@@ -174,7 +174,7 @@ export default function NewVehiclePage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Description</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Description</label>
           <textarea
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -185,7 +185,7 @@ export default function NewVehiclePage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Year</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Year</label>
             <input
               type="number"
               value={form.year}
@@ -196,7 +196,7 @@ export default function NewVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Make</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Make</label>
             <input
               type="text"
               value={form.make}
@@ -207,7 +207,7 @@ export default function NewVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Model</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Model</label>
             <input
               type="text"
               value={form.model}
@@ -220,7 +220,7 @@ export default function NewVehiclePage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">License plate number</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">License plate number</label>
             <input
               type="text"
               value={form.licensePlate}
@@ -230,7 +230,7 @@ export default function NewVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle Identification Number (VIN)</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Vehicle Identification Number (VIN)</label>
             <input
               type="text"
               value={form.vin}
@@ -241,7 +241,7 @@ export default function NewVehiclePage() {
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle color</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Vehicle color</label>
           <input
             type="text"
             value={form.color}
@@ -251,13 +251,13 @@ export default function NewVehiclePage() {
           />
         </div>
 
-        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-          <h3 className="text-sm font-medium text-white">Vehicle photos</h3>
-          <p className="mt-1 text-xs text-slate-400">Upload up to 10 photos so renters can see your car. JPEG, PNG, GIF, or WebP. Max 5MB each.</p>
+        <div className="rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+          <h3 className="text-sm font-medium text-[var(--black)]">Vehicle photos</h3>
+          <p className="mt-1 text-xs text-[var(--grey-600)]">Upload up to 10 photos so renters can see your car. JPEG, PNG, GIF, or WebP. Max 5MB each.</p>
           <div className="mt-3 flex flex-wrap gap-3">
             {imagePreviews.map((url, i) => (
               <div key={i} className="relative">
-                <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover border border-slate-600" />
+                <img src={url} alt="" className="h-20 w-20 rounded-lg object-cover border border-[var(--grey-200)]" />
                 <button
                   type="button"
                   onClick={() => removeImage(i)}
@@ -269,27 +269,27 @@ export default function NewVehiclePage() {
               </div>
             ))}
             {imageFiles.length < 10 && (
-              <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-slate-500 bg-slate-800/50 text-slate-400 hover:border-amber-500/50 hover:text-amber-400 transition">
+              <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[var(--grey-200)] bg-[var(--grey-100)] text-[var(--grey-600)] hover:border-[var(--accent)]/50 hover:text-[var(--accent)] transition">
                 <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple className="hidden" onChange={handleImageChange} />
                 <span className="text-2xl">+</span>
               </label>
             )}
           </div>
-          {imageFiles.length > 0 && <p className="mt-2 text-xs text-slate-500">{imageFiles.length} photo(s) selected</p>}
+          {imageFiles.length > 0 && <p className="mt-2 text-xs text-[var(--grey-600)]">{imageFiles.length} photo(s) selected</p>}
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle Roadworthiness Certificate</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Vehicle Roadworthiness Certificate</label>
           <input
             type="file"
             accept="image/*,application/pdf"
-            className="input-field text-sm text-slate-300"
+            className="input-field text-sm text-[var(--grey-600)]"
             onChange={(e) => setRoadworthinessFile(e.target.files?.[0] ?? null)}
           />
-          <p className="mt-1 text-xs text-slate-500">Upload a clear image or PDF of the certificate.</p>
+          <p className="mt-1 text-xs text-[var(--grey-600)]">Upload a clear image or PDF of the certificate.</p>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Vehicle class</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Vehicle class</label>
             <select
               value={form.vehicleClass}
               onChange={(e) => setForm((f) => ({ ...f, vehicleClass: e.target.value as typeof form.vehicleClass }))}
@@ -300,12 +300,12 @@ export default function NewVehiclePage() {
               ))}
             </select>
         </div>
-        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-          <h3 className="text-sm font-medium text-white">Mileage per day (included)</h3>
-          <p className="mt-1 text-xs text-slate-400">Recommended: 200 miles (~322 km) per day included. Excess mileage may incur fees.</p>
+        <div className="rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+          <h3 className="text-sm font-medium text-[var(--black)]">Mileage per day (included)</h3>
+          <p className="mt-1 text-xs text-[var(--grey-600)]">Recommended: 200 miles (~322 km) per day included. Excess mileage may incur fees.</p>
           <div className="mt-3 flex flex-wrap items-end gap-4">
             <div>
-              <label className="mb-1 block text-xs text-slate-500">Value</label>
+              <label className="mb-1 block text-xs text-[var(--grey-600)]">Value</label>
               <input
                 type="number"
                 value={form.mileagePerDay || ""}
@@ -315,7 +315,7 @@ export default function NewVehiclePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-slate-500">Unit</label>
+              <label className="mb-1 block text-xs text-[var(--grey-600)]">Unit</label>
               <select
                 value={form.mileagePerDayUnit}
                 onChange={(e) => {
@@ -332,7 +332,7 @@ export default function NewVehiclePage() {
                 <option value="miles">miles</option>
               </select>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[var(--grey-600)]">
               = {form.mileagePerDayUnit === "km" ? mileageMiles.toFixed(1) : mileageKm} {form.mileagePerDayUnit === "km" ? "miles" : "km"} per day
             </p>
           </div>
@@ -340,12 +340,12 @@ export default function NewVehiclePage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <label className="block text-sm font-medium text-slate-400">Price per day ({form.currency})</label>
+              <label className="block text-sm font-medium text-[var(--grey-600)]">Price per day ({form.currency})</label>
               <button
                 type="button"
                 onClick={handleGetRecommendation}
                 disabled={recommendLoading}
-                className="text-xs font-medium text-amber-400 hover:text-amber-300 disabled:opacity-50"
+                className="text-xs font-medium text-[var(--accent)] hover:opacity-80 disabled:opacity-50"
               >
                 {recommendLoading ? "Getting suggestion…" : "Get AI recommendation"}
               </button>
@@ -360,15 +360,15 @@ export default function NewVehiclePage() {
             />
             {recommendError && <p className="mt-1 text-xs text-red-400">{recommendError}</p>}
             {priceRecommendation && (
-              <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2">
-                <p className="text-xs text-amber-200">
+              <div className="mt-2 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-light)] p-2">
+                <p className="text-xs text-[var(--accent)]">
                   Suggested: <strong>{form.currency} {priceRecommendation.price.toLocaleString()}</strong>/day
                 </p>
-                <p className="mt-1 text-xs text-slate-400">{priceRecommendation.reasoning}</p>
+                <p className="mt-1 text-xs text-[var(--grey-600)]">{priceRecommendation.reasoning}</p>
                 <button
                   type="button"
                   onClick={handleApplyRecommendation}
-                  className="mt-2 rounded bg-amber-600 px-2 py-1 text-xs font-medium text-white hover:bg-amber-500"
+                  className="mt-2 rounded bg-[var(--accent)] px-2 py-1 text-xs font-medium text-[var(--black)] hover:opacity-90"
                 >
                   Apply suggestion
                 </button>
@@ -376,7 +376,7 @@ export default function NewVehiclePage() {
             )}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Price per week (NGN, optional)</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Price per week (NGN, optional)</label>
             <input
               type="number"
               value={form.pricePerWeek || ""}
@@ -388,7 +388,7 @@ export default function NewVehiclePage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Min rental days</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Min rental days</label>
             <input
               type="number"
               value={form.minRentalDays}
@@ -398,7 +398,7 @@ export default function NewVehiclePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Booking type</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Booking type</label>
             <select
               value={form.bookingType}
               onChange={(e) => setForm((f) => ({ ...f, bookingType: e.target.value as "instant" | "approval" }))}
@@ -410,7 +410,7 @@ export default function NewVehiclePage() {
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">City</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">City</label>
           <input
             type="text"
             value={form.location.city}
@@ -421,41 +421,41 @@ export default function NewVehiclePage() {
           />
         </div>
 
-        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-          <h3 className="text-sm font-medium text-white">Vehicle insurance</h3>
-          <p className="mt-1 text-xs text-slate-400">Get cover for your listed vehicle. Purchase or renew insurance through our partner before or after listing.</p>
+        <div className="rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+          <h3 className="text-sm font-medium text-[var(--black)]">Vehicle insurance</h3>
+          <p className="mt-1 text-xs text-[var(--grey-600)]">Get cover for your listed vehicle. Purchase or renew insurance through our partner before or after listing.</p>
           <a
             href="/dashboard/host/insurance"
-            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-amber-500/20 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-500/30 transition"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--accent-light)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:opacity-90/30 transition"
           >
             Purchase / manage vehicle insurance
-            <span className="text-amber-400/80">→</span>
+            <span className="text-[var(--accent)]/80">→</span>
           </a>
         </div>
 
-        <div className="rounded-lg border border-slate-600 bg-slate-800/30 p-4">
-          <h3 className="text-sm font-medium text-white">4. Agreement & consent</h3>
-          <p className="mt-1 text-xs text-slate-400">Confirm your details and agree to company policies.</p>
+        <div className="rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+          <h3 className="text-sm font-medium text-[var(--black)]">4. Agreement & consent</h3>
+          <p className="mt-1 text-xs text-[var(--grey-600)]">Confirm your details and agree to company policies.</p>
           <label className="mt-4 flex items-start gap-3">
             <input
               type="checkbox"
               checked={form.listingInfoCorrect}
               onChange={(e) => setForm((f) => ({ ...f, listingInfoCorrect: e.target.checked }))}
-              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+              className="mt-1 h-4 w-4 rounded border-[var(--grey-200)] bg-[var(--grey-100)] text-[var(--accent)] focus:ring-[var(--accent)]"
             />
-            <span className="text-sm text-slate-300">I confirm all the information provided is correct.</span>
+            <span className="text-sm text-[var(--grey-600)]">I confirm all the information provided is correct.</span>
           </label>
           <label className="mt-3 flex items-start gap-3">
             <input
               type="checkbox"
               checked={form.listingPoliciesAgreed}
               onChange={(e) => setForm((f) => ({ ...f, listingPoliciesAgreed: e.target.checked }))}
-              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+              className="mt-1 h-4 w-4 rounded border-[var(--grey-200)] bg-[var(--grey-100)] text-[var(--accent)] focus:ring-[var(--accent)]"
             />
-            <span className="text-sm text-slate-300">I agree to abide by the company's driver policies, safety standards, and customer service expectations.</span>
+            <span className="text-sm text-[var(--grey-600)]">I agree to abide by the company's driver policies, safety standards, and customer service expectations.</span>
           </label>
           <div className="mt-4">
-            <label className="mb-1 block text-sm font-medium text-slate-400">Signature (digital) & date</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Signature (digital) & date</label>
             <input
               type="text"
               value={form.listingSignature}

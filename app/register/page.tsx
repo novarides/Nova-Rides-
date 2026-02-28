@@ -66,12 +66,12 @@ function RegisterForm() {
     return (
       <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500/20 text-green-400 text-2xl">✓</div>
-        <h1 className="mt-4 font-display text-2xl font-bold text-white">Account created</h1>
-        <p className="mt-2 text-slate-400">Verification email is not configured. Use the link below to verify your email (valid 24 hours):</p>
-        <a href={verificationLink} className="mt-4 block break-all rounded-lg border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm text-amber-300 hover:bg-amber-500/20">
+        <h1 className="mt-4 font-display text-2xl font-bold text-[var(--black)]">Account created</h1>
+        <p className="mt-2 text-[var(--grey-600)]">Verification email is not configured. Use the link below to verify your email (valid 24 hours):</p>
+        <a href={verificationLink} className="mt-4 block break-all rounded-lg border border-[var(--accent)]/50 bg-[var(--accent-light)] px-4 py-3 text-sm text-[var(--accent)] hover:bg-[var(--accent)]/20">
           {verificationLink}
         </a>
-        <p className="mt-2 text-xs text-slate-500">Click the link above or copy it to your browser.</p>
+        <p className="mt-2 text-xs text-[var(--grey-600)]">Click the link above or copy it to your browser.</p>
         <button type="button" onClick={() => router.push("/profile")} className="mt-6 btn-primary w-full">
           Go to profile
         </button>
@@ -81,15 +81,15 @@ function RegisterForm() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">Create your Nova Rides account</h1>
-      <p className="mt-2 text-slate-400">Join as a host or renter.</p>
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">Create your Nova Rides account</h1>
+      <p className="mt-2 text-[var(--grey-600)]">Join as a host or renter.</p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div className="flex gap-4">
           <button
             type="button"
             onClick={() => setRole("renter")}
             className={`flex-1 rounded-lg border py-2 text-sm font-medium transition ${
-              role === "renter" ? "border-amber-500 bg-amber-500/20 text-amber-400" : "border-slate-600 text-slate-400 hover:border-slate-500"
+              role === "renter" ? "border-[var(--accent)] bg-[var(--accent)]/20 text-[var(--accent)]" : "border-[var(--grey-200)] text-[var(--grey-600)] hover:border-[var(--grey-400)]"
             }`}
           >
             Renter
@@ -98,7 +98,7 @@ function RegisterForm() {
             type="button"
             onClick={() => setRole("host")}
             className={`flex-1 rounded-lg border py-2 text-sm font-medium transition ${
-              role === "host" ? "border-amber-500 bg-amber-500/20 text-amber-400" : "border-slate-600 text-slate-400 hover:border-slate-500"
+              role === "host" ? "border-[var(--accent)] bg-[var(--accent)]/20 text-[var(--accent)]" : "border-[var(--grey-200)] text-[var(--grey-600)] hover:border-[var(--grey-400)]"
             }`}
           >
             Host
@@ -106,41 +106,41 @@ function RegisterForm() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">First name</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">First name</label>
             <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required className="input-field" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-400">Last name</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Last name</label>
             <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required className="input-field" />
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Email</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Email</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="input-field" />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Phone (optional)</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Phone (optional)</label>
           <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="input-field" placeholder="+234..." />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Password</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Password</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="input-field" />
         </div>
         <label className="flex items-start gap-2">
-          <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-1 rounded border-slate-600" />
-          <span className="text-sm text-slate-400">I accept the <Link href="/terms" className="text-amber-400 hover:underline">Terms & Conditions</Link></span>
+          <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} className="mt-1 rounded border-[var(--grey-200)]" />
+          <span className="text-sm text-[var(--grey-600)]">I accept the <Link href="/terms" className="text-[var(--accent)] hover:underline">Terms & Conditions</Link></span>
         </label>
         <label className="flex items-start gap-2">
-          <input type="checkbox" checked={acceptedPrivacy} onChange={(e) => setAcceptedPrivacy(e.target.checked)} className="mt-1 rounded border-slate-600" />
-          <span className="text-sm text-slate-400">I accept the <Link href="/privacy" className="text-amber-400 hover:underline">Privacy Policy</Link></span>
+          <input type="checkbox" checked={acceptedPrivacy} onChange={(e) => setAcceptedPrivacy(e.target.checked)} className="mt-1 rounded border-[var(--grey-200)]" />
+          <span className="text-sm text-[var(--grey-600)]">I accept the <Link href="/privacy" className="text-[var(--accent)] hover:underline">Privacy Policy</Link></span>
         </label>
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
           {loading ? "Creating account…" : "Sign up"}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-400">
-        Already have an account? <Link href="/login" className="text-amber-400 hover:text-amber-300">Log in</Link>
+      <p className="mt-6 text-center text-sm text-[var(--grey-600)]">
+        Already have an account? <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent)]">Log in</Link>
       </p>
     </div>
   );
@@ -148,7 +148,7 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16 text-center text-slate-400">Loading…</div>}>
+    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16 text-center text-[var(--grey-600)]">Loading…</div>}>
       <RegisterForm />
     </Suspense>
   );

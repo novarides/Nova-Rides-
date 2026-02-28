@@ -56,8 +56,8 @@ export default function PaymentCallbackPage() {
   if (status === "verifying") {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <div className="inline-block h-10 w-10 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-        <p className="mt-4 text-slate-400">Confirming your payment…</p>
+        <div className="inline-block h-10 w-10 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
+        <p className="mt-4 text-[var(--grey-600)]">Confirming your payment…</p>
       </div>
     );
   }
@@ -66,8 +66,8 @@ export default function PaymentCallbackPage() {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500/20 text-green-400 text-2xl">✓</div>
-        <h1 className="mt-4 font-display text-xl font-bold text-white">Payment successful</h1>
-        <p className="mt-2 text-slate-400">Your booking is confirmed and paid.</p>
+        <h1 className="mt-4 font-display text-xl font-bold text-[var(--black)]">Payment successful</h1>
+        <p className="mt-2 text-[var(--grey-600)]">Your booking is confirmed and paid.</p>
         <Link href={`/bookings/${bookingId}`} className="mt-6 inline-block btn-primary">
           View booking
         </Link>
@@ -78,8 +78,8 @@ export default function PaymentCallbackPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-16 text-center">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-500/20 text-red-400 text-2xl">✕</div>
-      <h1 className="mt-4 font-display text-xl font-bold text-white">Payment failed</h1>
-      <p className="mt-2 text-slate-400">{error || "We couldn’t confirm your payment."}</p>
+      <h1 className="mt-4 font-display text-xl font-bold text-[var(--black)]">Payment failed</h1>
+      <p className="mt-2 text-[var(--grey-600)]">{error || "We couldn’t confirm your payment."}</p>
       <Link href={`/bookings/${bookingId}`} className="mt-6 inline-block btn-secondary">
         Back to booking
       </Link>

@@ -58,12 +58,12 @@ export default function RenterDashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">Your trips</h1>
-      <p className="mt-1 text-slate-400">Booking history and active rentals.</p>
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">Your trips</h1>
+      <p className="mt-1 text-[var(--grey-600)]">Booking history and active rentals.</p>
 
       {bookings.length === 0 ? (
         <div className="card mt-8 p-12 text-center">
-          <p className="text-slate-400">You haven’t booked any trips yet.</p>
+          <p className="text-[var(--grey-600)]">You haven’t booked any trips yet.</p>
           <Link href="/search" className="mt-4 inline-block btn-primary">Find a car</Link>
         </div>
       ) : (
@@ -72,19 +72,19 @@ export default function RenterDashboardPage() {
             <li key={b.id} className="card p-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="font-medium text-white">{vehicles[b.vehicleId]?.title ?? "Vehicle"}</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="font-medium text-[var(--black)]">{vehicles[b.vehicleId]?.title ?? "Vehicle"}</p>
+                  <p className="text-sm text-[var(--grey-600)]">
                     {new Date(b.startDate).toLocaleDateString()} – {new Date(b.endDate).toLocaleDateString()}
                   </p>
                   <p className="mt-1 text-sm">
-                    <span className="text-slate-400">Status:</span> <span className="capitalize text-slate-300">{b.status}</span>
+                    <span className="text-[var(--grey-600)]">Status:</span> <span className="capitalize text-[var(--grey-600)]">{b.status}</span>
                     {" · "}
-                    <span className="text-slate-400">Payment:</span> <span className="capitalize text-slate-300">{b.paymentStatus}</span>
+                    <span className="text-[var(--grey-600)]">Payment:</span> <span className="capitalize text-[var(--grey-600)]">{b.paymentStatus}</span>
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-lg font-semibold text-amber-400">NGN {b.totalPrice.toLocaleString()}</span>
-                  <Link href={"/bookings/" + b.id} className="text-sm text-amber-400 hover:text-amber-300">View details →</Link>
+                  <span className="text-lg font-semibold text-[var(--accent)]">NGN {b.totalPrice.toLocaleString()}</span>
+                  <Link href={"/bookings/" + b.id} className="text-sm text-[var(--accent)] hover:opacity-80">View details →</Link>
                 </div>
               </div>
             </li>

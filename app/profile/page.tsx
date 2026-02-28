@@ -333,7 +333,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
       </div>
     );
   }
@@ -342,24 +342,24 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">Profile</h1>
-      <p className="mt-1 text-slate-400">Manage your account and photo.</p>
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">Profile</h1>
+      <p className="mt-1 text-[var(--grey-600)]">Manage your account and photo.</p>
 
       {!profile.verified && (
-        <div className="mt-6 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3">
-          <p className="text-sm text-amber-200">Verify your email to access all features.</p>
+        <div className="mt-6 rounded-lg border border-[var(--accent)]/40 bg-[var(--accent-light)] px-4 py-3">
+          <p className="text-sm text-[var(--accent)]">Verify your email to access all features.</p>
           <button
             type="button"
             onClick={handleResendVerification}
             disabled={resending}
-            className="mt-2 text-sm font-medium text-amber-400 hover:text-amber-300 disabled:opacity-50"
+            className="mt-2 text-sm font-medium text-[var(--accent)] hover:opacity-80 disabled:opacity-50"
           >
             {resending ? "Sending…" : "Resend verification email"}
           </button>
           {verificationLink && (
             <div className="mt-3">
-              <p className="text-xs text-amber-200/80">{message || "Use this link to verify (valid 24 hours):"}</p>
-              <a href={verificationLink} className="mt-1 block break-all text-sm text-amber-300 underline hover:text-amber-200">
+              <p className="text-xs text-[var(--accent)]/80">{message || "Use this link to verify (valid 24 hours):"}</p>
+              <a href={verificationLink} className="mt-1 block break-all text-sm text-[var(--accent)]/300 underline hover:text-[var(--accent)]">
                 {verificationLink}
               </a>
             </div>
@@ -374,18 +374,18 @@ export default function ProfilePage() {
       )}
 
       <div className="card mt-6 p-6">
-        <h2 className="font-display text-lg font-bold text-white">Account mode</h2>
-        <p className="mt-1 text-sm text-slate-400">Switch between hosting vehicles and renting. You can do both; this only changes which dashboard and actions are in focus.</p>
+        <h2 className="font-display text-lg font-bold text-[var(--black)]">Account mode</h2>
+        <p className="mt-1 text-sm text-[var(--grey-600)]">Switch between hosting vehicles and renting. You can do both; this only changes which dashboard and actions are in focus.</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <span className="text-sm text-slate-400">Currently:</span>
-          <span className="rounded bg-slate-700 px-2 py-1 text-sm font-medium text-amber-400 capitalize">{profile.role === "admin" ? "Admin" : profile.role}</span>
+          <span className="text-sm text-[var(--grey-600)]">Currently:</span>
+          <span className="rounded bg-[var(--grey-200)] px-2 py-1 text-sm font-medium text-[var(--accent)] capitalize">{profile.role === "admin" ? "Admin" : profile.role}</span>
           {profile.role !== "admin" && (
             <>
               <button
                 type="button"
                 onClick={() => handleSwitchRole("host")}
                 disabled={roleSwitching || profile.role === "host"}
-                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 disabled:border-slate-600 disabled:bg-transparent disabled:text-slate-500"
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 border-[var(--accent)]/50 bg-[var(--accent-light)] text-[var(--accent)] hover:bg-[var(--accent)]/20 disabled:border-[var(--grey-200)] disabled:bg-transparent disabled:text-[var(--grey-600)]"
               >
                 {roleSwitching ? "Switching…" : "Switch to Host"}
               </button>
@@ -393,7 +393,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => handleSwitchRole("renter")}
                 disabled={roleSwitching || profile.role === "renter"}
-                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 border-slate-500 bg-slate-700/50 text-slate-300 hover:bg-slate-600 disabled:border-slate-600 disabled:bg-slate-800 disabled:text-slate-500"
+                className="rounded-lg border px-3 py-1.5 text-sm font-medium transition disabled:opacity-50 border-[var(--grey-200)] bg-[var(--grey-100)] text-[var(--grey-600)] hover:bg-[var(--grey-200)] disabled:border-[var(--grey-200)] disabled:bg-[var(--grey-100)] disabled:text-[var(--grey-600)]"
               >
                 Switch to Renter
               </button>
@@ -405,18 +405,18 @@ export default function ProfilePage() {
       <div className="card mt-6 p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
           <div className="shrink-0">
-            <div className="relative h-24 w-24 overflow-hidden rounded-full bg-slate-700 ring-2 ring-slate-600">
+            <div className="relative h-24 w-24 overflow-hidden rounded-full bg-[var(--grey-200)] ring-2 ring-[var(--grey-200)]">
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-slate-400">
+                <span className="flex h-full w-full items-center justify-center text-2xl font-semibold text-[var(--grey-600)]">
                   {profile.firstName[0]}
                   {profile.lastName[0]}
                 </span>
               )}
             </div>
             <div className="mt-3 flex flex-col gap-2">
-              <label className="cursor-pointer text-center text-sm text-amber-400 hover:text-amber-300">
+              <label className="cursor-pointer text-center text-sm text-[var(--accent)] hover:opacity-80">
                 <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handleAvatarChange} />
                 Choose photo
               </label>
@@ -425,7 +425,7 @@ export default function ProfilePage() {
                   type="button"
                   onClick={handleAvatarUpload}
                   disabled={saving}
-                  className="rounded bg-slate-600 px-3 py-1 text-xs font-medium text-white hover:bg-slate-500 disabled:opacity-50"
+                  className="rounded bg-[var(--grey-200)] px-3 py-1 text-xs font-medium text-[var(--black)] hover:bg-[var(--grey-400)] disabled:opacity-50"
                 >
                   {saving ? "Uploading…" : "Upload"}
                 </button>
@@ -434,13 +434,13 @@ export default function ProfilePage() {
           </div>
           <form onSubmit={handleSubmit} className="min-w-0 flex-1 space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-400">Email</label>
-              <p className="text-white">{profile.email}</p>
+              <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Email</label>
+              <p className="text-[var(--black)]">{profile.email}</p>
               {profile.verified && <span className="text-xs text-green-400">Verified</span>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-400">First name</label>
+                <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">First name</label>
                 <input
                   type="text"
                   value={form.firstName}
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-400">Last name</label>
+                <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Last name</label>
                 <input
                   type="text"
                   value={form.lastName}
@@ -461,7 +461,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-400">Phone</label>
+              <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Phone</label>
               <input
                 type="tel"
                 value={form.phone}
@@ -480,9 +480,9 @@ export default function ProfilePage() {
       </div>
 
       <div className="card mt-6 p-6">
-        <h2 className="font-display text-lg font-bold text-white">1. Personal information</h2>
-        <p className="mt-1 text-sm text-slate-400">Full name, date of birth, address, and emergency contact. Completed in the form above.</p>
-        <ul className="mt-2 list-inside list-disc text-sm text-slate-400">
+        <h2 className="font-display text-lg font-bold text-[var(--black)]">1. Personal information</h2>
+        <p className="mt-1 text-sm text-[var(--grey-600)]">Full name, date of birth, address, and emergency contact. Completed in the form above.</p>
+        <ul className="mt-2 list-inside list-disc text-sm text-[var(--grey-600)]">
           <li>Full name: {profile.firstName} {profile.lastName}</li>
           {profile.dateOfBirth && <li>Date of birth: {new Date(profile.dateOfBirth).toLocaleDateString()}</li>}
           {profile.residentialAddress && <li>Residential address: {profile.residentialAddress}</li>}
@@ -493,20 +493,20 @@ export default function ProfilePage() {
       </div>
 
       <div className="card mt-6 p-6">
-        <h2 className="font-display text-lg font-bold text-white">2. Identification & documents</h2>
-        <p className="mt-1 text-sm text-slate-400">Government-issued ID (International passport, NIN, etc.), passport photograph, and proof of address (utility bill, etc.).</p>
+        <h2 className="font-display text-lg font-bold text-[var(--black)]">2. Identification & documents</h2>
+        <p className="mt-1 text-sm text-[var(--grey-600)]">Government-issued ID (International passport, NIN, etc.), passport photograph, and proof of address (utility bill, etc.).</p>
 
         <div className="mt-6 space-y-6">
           <div>
-            <h3 className="text-sm font-medium text-slate-300">Government-issued ID (International passport, NIN, etc.)</h3>
+            <h3 className="text-sm font-medium text-[var(--grey-600)]">Government-issued ID (International passport, NIN, etc.)</h3>
             {profile.identityVerified ? (
               <p className="mt-1 text-sm text-green-400">✓ ID verified</p>
             ) : (
               <div className="mt-2 flex flex-wrap items-end gap-3">
-                <label className="text-sm text-slate-400">
-                  <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setIdentityFile(e.target.files?.[0] ?? null)} />
+                <label className="text-sm text-[var(--grey-600)]">
+                  <input type="file" accept="image/*,application/pdf" className="ml-1 text-[var(--grey-600)]" onChange={(e) => setIdentityFile(e.target.files?.[0] ?? null)} />
                 </label>
-                <button type="button" onClick={handleIdentityUpload} disabled={!identityFile || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                <button type="button" onClick={handleIdentityUpload} disabled={!identityFile || !!docUploading} className="rounded bg-[var(--grey-200)] px-3 py-1.5 text-sm text-[var(--black)] hover:bg-[var(--grey-400)] disabled:opacity-50">
                   {docUploading === "identity" ? "Uploading…" : "Upload ID"}
                 </button>
               </div>
@@ -514,15 +514,15 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-slate-300">Passport photograph</h3>
+            <h3 className="text-sm font-medium text-[var(--grey-600)]">Passport photograph</h3>
             {profile.passportPhotoUrl ? (
               <p className="mt-1 text-sm text-green-400">✓ Uploaded</p>
             ) : (
               <div className="mt-2 flex flex-wrap items-end gap-3">
-                <label className="text-sm text-slate-400">
-                  <input type="file" accept="image/*" className="ml-1 text-slate-300" onChange={(e) => setPassportFile(e.target.files?.[0] ?? null)} />
+                <label className="text-sm text-[var(--grey-600)]">
+                  <input type="file" accept="image/*" className="ml-1 text-[var(--grey-600)]" onChange={(e) => setPassportFile(e.target.files?.[0] ?? null)} />
                 </label>
-                <button type="button" onClick={handlePassportUpload} disabled={!passportFile || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                <button type="button" onClick={handlePassportUpload} disabled={!passportFile || !!docUploading} className="rounded bg-[var(--grey-200)] px-3 py-1.5 text-sm text-[var(--black)] hover:bg-[var(--grey-400)] disabled:opacity-50">
                   {docUploading === "passport" ? "Uploading…" : "Upload passport photo"}
                 </button>
               </div>
@@ -530,15 +530,15 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-slate-300">Proof of address (utility bill, etc.)</h3>
+            <h3 className="text-sm font-medium text-[var(--grey-600)]">Proof of address (utility bill, etc.)</h3>
             {profile.proofOfAddressUrl ? (
               <p className="mt-1 text-sm text-green-400">✓ Uploaded</p>
             ) : (
               <div className="mt-2 flex flex-wrap items-end gap-3">
-                <label className="text-sm text-slate-400">
-                  <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setProofOfAddressFile(e.target.files?.[0] ?? null)} />
+                <label className="text-sm text-[var(--grey-600)]">
+                  <input type="file" accept="image/*,application/pdf" className="ml-1 text-[var(--grey-600)]" onChange={(e) => setProofOfAddressFile(e.target.files?.[0] ?? null)} />
                 </label>
-                <button type="button" onClick={handleProofOfAddressUpload} disabled={!proofOfAddressFile || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+                <button type="button" onClick={handleProofOfAddressUpload} disabled={!proofOfAddressFile || !!docUploading} className="rounded bg-[var(--grey-200)] px-3 py-1.5 text-sm text-[var(--black)] hover:bg-[var(--grey-400)] disabled:opacity-50">
                   {docUploading === "proofOfAddress" ? "Uploading…" : "Upload proof of address"}
                 </button>
               </div>
@@ -546,24 +546,24 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-slate-300">Driver's licence</h3>
+            <h3 className="text-sm font-medium text-[var(--grey-600)]">Driver's licence</h3>
             {profile.licenseExpiryDate && (
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm text-[var(--grey-600)]">
                 Expiry: {new Date(profile.licenseExpiryDate).toLocaleDateString()}
                 {profile.licenseVerified ? <span className="ml-2 text-green-400">✓ Valid</span> : <span className="ml-2 text-red-400">Expired</span>}
               </p>
             )}
             <div className="mt-2 flex flex-wrap items-end gap-3">
-              <label className="text-sm text-slate-400">
-                Front: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setLicenseFront(e.target.files?.[0] ?? null)} />
+              <label className="text-sm text-[var(--grey-600)]">
+                Front: <input type="file" accept="image/*,application/pdf" className="ml-1 text-[var(--grey-600)]" onChange={(e) => setLicenseFront(e.target.files?.[0] ?? null)} />
               </label>
-              <label className="text-sm text-slate-400">
-                Back: <input type="file" accept="image/*,application/pdf" className="ml-1 text-slate-300" onChange={(e) => setLicenseBack(e.target.files?.[0] ?? null)} />
+              <label className="text-sm text-[var(--grey-600)]">
+                Back: <input type="file" accept="image/*,application/pdf" className="ml-1 text-[var(--grey-600)]" onChange={(e) => setLicenseBack(e.target.files?.[0] ?? null)} />
               </label>
-              <label className="text-sm text-slate-400">
+              <label className="text-sm text-[var(--grey-600)]">
                 Expiry date: <input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} className="input-field ml-1 inline-block w-auto" />
               </label>
-              <button type="button" onClick={handleLicenseUpload} disabled={!licenseFront || !licenseBack || !licenseExpiry || !!docUploading} className="rounded bg-slate-600 px-3 py-1.5 text-sm text-white hover:bg-slate-500 disabled:opacity-50">
+              <button type="button" onClick={handleLicenseUpload} disabled={!licenseFront || !licenseBack || !licenseExpiry || !!docUploading} className="rounded bg-[var(--grey-200)] px-3 py-1.5 text-sm text-[var(--black)] hover:bg-[var(--grey-400)] disabled:opacity-50">
                 {docUploading === "license" ? "Uploading…" : profile.licenseDocFront ? "Update licence" : "Upload licence"}
               </button>
             </div>
@@ -572,8 +572,8 @@ export default function ProfilePage() {
       </div>
 
       <div className="card mt-6 p-6">
-        <h2 className="font-display text-lg font-bold text-white">3. Agreement & consent</h2>
-        <p className="mt-1 text-sm text-slate-400">Confirm your details and agree to driver policies. Save profile to record your signature and date.</p>
+        <h2 className="font-display text-lg font-bold text-[var(--black)]">3. Agreement & consent</h2>
+        <p className="mt-1 text-sm text-[var(--grey-600)]">Confirm your details and agree to driver policies. Save profile to record your signature and date.</p>
 
         <div className="mt-6 space-y-4">
           <label className="flex items-start gap-3">
@@ -581,21 +581,21 @@ export default function ProfilePage() {
               type="checkbox"
               checked={form.verificationInfoCorrect}
               onChange={(e) => setForm((f) => ({ ...f, verificationInfoCorrect: e.target.checked }))}
-              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+              className="mt-1 h-4 w-4 rounded border-[var(--grey-200)] bg-[var(--grey-100)] text-[var(--accent)] focus:ring-[var(--accent)]"
             />
-            <span className="text-sm text-slate-300">I confirm all the information provided is correct.</span>
+            <span className="text-sm text-[var(--grey-600)]">I confirm all the information provided is correct.</span>
           </label>
           <label className="flex items-start gap-3">
             <input
               type="checkbox"
               checked={form.verificationPoliciesAgreed}
               onChange={(e) => setForm((f) => ({ ...f, verificationPoliciesAgreed: e.target.checked }))}
-              className="mt-1 h-4 w-4 rounded border-slate-600 bg-slate-700 text-amber-500 focus:ring-amber-500"
+              className="mt-1 h-4 w-4 rounded border-[var(--grey-200)] bg-[var(--grey-100)] text-[var(--accent)] focus:ring-[var(--accent)]"
             />
-            <span className="text-sm text-slate-300">I agree to abide by the company's driver policies, safety standards, and customer service expectations.</span>
+            <span className="text-sm text-[var(--grey-600)]">I agree to abide by the company's driver policies, safety standards, and customer service expectations.</span>
           </label>
           <div className="pt-2">
-            <label className="mb-1 block text-sm font-medium text-slate-400">Signature (digital) & date</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Signature (digital) & date</label>
             <input
               type="text"
               value={form.verificationSignature}
@@ -604,14 +604,14 @@ export default function ProfilePage() {
               placeholder="Type your full name to sign"
             />
             {profile.verificationSignedAt && (
-              <p className="mt-1 text-xs text-slate-500">Signed on {new Date(profile.verificationSignedAt).toLocaleString()}</p>
+              <p className="mt-1 text-xs text-[var(--grey-600)]">Signed on {new Date(profile.verificationSignedAt).toLocaleString()}</p>
             )}
           </div>
         </div>
       </div>
 
       <p className="mt-6">
-        <Link href="/" className="text-sm text-slate-400 hover:text-white">← Back to home</Link>
+        <Link href="/" className="text-sm text-[var(--grey-600)] hover:text-[var(--black)]">← Back to home</Link>
       </p>
     </div>
   );

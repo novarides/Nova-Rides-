@@ -40,11 +40,11 @@ function LoginForm() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-white">Log in to Nova Rides</h1>
-      <p className="mt-2 text-slate-400">Use your email and password.</p>
+      <h1 className="font-display text-2xl font-bold text-[var(--black)]">Log in to Nova Rides</h1>
+      <p className="mt-2 text-[var(--grey-600)]">Use your email and password.</p>
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Email</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Email</label>
           <input
             type="email"
             value={email}
@@ -55,7 +55,7 @@ function LoginForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-400">Password</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--grey-600)]">Password</label>
           <input
             type="password"
             value={password}
@@ -65,13 +65,13 @@ function LoginForm() {
             placeholder="••••••••"
           />
         </div>
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
           {loading ? "Logging in…" : "Log in"}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-400">
-        Don’t have an account? <Link href="/register" className="text-amber-400 hover:text-amber-300">Sign up</Link>
+      <p className="mt-6 text-center text-sm text-[var(--grey-600)]">
+        Don’t have an account? <Link href="/register" className="text-[var(--accent)] hover:underline font-medium">Sign up</Link>
       </p>
     </div>
   );
@@ -79,7 +79,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16 text-center text-slate-400">Loading…</div>}>
+    <Suspense fallback={<div className="mx-auto max-w-md px-4 py-16 text-center text-[var(--grey-600)]">Loading…</div>}>
       <LoginForm />
     </Suspense>
   );
