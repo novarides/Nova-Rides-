@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Day mode (default) */
 :root {
   --black: #0A0A0A;
   --white: #FAFAF8;
@@ -22,6 +23,37 @@
   --nova-muted: var(--grey-600);
   --nova-text: var(--black);
   --nova-text-muted: var(--grey-600);
+  --focus-ring: 0 0 0 2px rgba(232, 160, 32, 0.2);
+  --footer-bg: #0A0A0A;
+  --footer-text: #FAFAF8;
+  --hero-bg: #0A0A0A;
+}
+
+/* Night mode – follows system preference (Settings > Display > Dark) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --black: #FAFAF8;
+    --white: #0F0F0F;
+    --grey-100: #1A1A1A;
+    --grey-200: #2A2A2A;
+    --grey-400: #888888;
+    --grey-600: #B0B0B0;
+    --accent: #F0B030;
+    --accent-light: #2D250F;
+    --nova-bg: var(--white);
+    --nova-surface: var(--grey-100);
+    --nova-card: var(--grey-100);
+    --nova-border: var(--grey-200);
+    --nova-accent: var(--accent);
+    --nova-accent-dim: #c49428;
+    --nova-muted: var(--grey-600);
+    --nova-text: var(--black);
+    --nova-text-muted: var(--grey-600);
+    --focus-ring: 0 0 0 2px rgba(240, 176, 48, 0.35);
+    --footer-bg: #0A0A0A;
+    --footer-text: #FAFAF8;
+    --hero-bg: #0A0A0A;
+  }
 }
 
 * {
@@ -57,7 +89,7 @@ body {
   }
   .input-field:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(232, 160, 32, 0.2);
+    box-shadow: var(--focus-ring);
   }
   .card {
     @apply bg-[var(--white)] border border-[var(--grey-200)] rounded-[var(--radius)] overflow-hidden;

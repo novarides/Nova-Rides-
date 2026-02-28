@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore, setStore, persistStore } from "@/lib/store";
-import { requireAuth, requireRole } from "@/lib/auth";
+import { getSession, requireAuth, requireRole } from "@/lib/auth";
 import { Vehicle } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
+
+/** Vehicle without fields that are private to host/backend or until booking confirmed. */
+function sanitizeVehicleForRenter(
+  vehicle: Vehicle,
+  allowLicenseAndVin: boolean
+): Vehicle {
+  const { roadworthinessDocUrl, licensePlate, vin, ...rest } = vehicle;
+  return {
+    ...rest,
+    ...(allowLicenseAndVin ? { licensePlate, vin } : {}),
+    // roadworthinessDocUrl never exposed to renters
+  } as Vehicle;
+}
 
 export async function GET(
   _request: NextRequest,
@@ -14,7 +27,25 @@ export async function GET(
   if (!vehicle) {
     return NextResponse.json({ success: false, error: "Vehicle not found" }, { status: 404 });
   }
-  return NextResponse.json({ success: true, data: vehicle });
+
+  const session = await getSession();
+  const isHostOfVehicle = session && vehicle.hostId === session.user.id;
+  const isAdmin = session && session.user.role === "admin";
+  const renterHasConfirmedBooking =
+    session &&
+    session.user.role === "renter" &&
+    store.bookings.some(
+      (b) =>
+        b.vehicleId === id &&
+        b.renterId === session.user.id &&
+        (b.status === "confirmed" || b.status === "in_progress" || b.status === "completed")
+    );
+
+  if (isHostOfVehicle || isAdmin) {
+    return NextResponse.json({ success: true, data: vehicle });
+  }
+  const data = sanitizeVehicleForRenter(vehicle, !!renterHasConfirmedBooking);
+  return NextResponse.json({ success: true, data });
 }
 
 export async function PATCH(

@@ -55,6 +55,47 @@ export async function sendVerificationEmail(email: string, token: string): Promi
   }
 }
 
+export async function sendPasswordResetEmail(
+  email: string,
+  token: string
+): Promise<{ ok: boolean; error?: string; resetUrl?: string }> {
+  const resetUrl = `${APP_URL}/reset-password?token=${encodeURIComponent(token)}`;
+  if (!RESEND_API_KEY) {
+    return { ok: true, resetUrl };
+  }
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [email],
+        subject: "Reset your Nova Rides password",
+        html: `
+          <h1>Reset your password</h1>
+          <p>You requested a password reset for your Nova Rides account. Click the link below to set a new password:</p>
+          <p><a href="${resetUrl}" style="color:#E8A020;font-weight:bold">Reset password</a></p>
+          <p>Or copy this link: ${resetUrl}</p>
+          <p>This link expires in 1 hour. If you didn't request this, you can ignore this email.</p>
+          <p>– Nova Rides</p>
+        `,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return { ok: false, error: data.message || "Failed to send email" };
+    }
+    return { ok: true, resetUrl };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 export async function sendLicenseExpiryReminder(
   email: string,
   expiryDate: string,

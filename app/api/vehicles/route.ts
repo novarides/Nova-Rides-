@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore, setStore, generateId, persistStore } from "@/lib/store";
-import { requireRole } from "@/lib/auth";
+import { getSession, requireRole } from "@/lib/auth";
 import { Vehicle } from "@/lib/types";
 import { ApiResponse } from "@/lib/types";
 import { saveVehicleDocument, saveVehicleImage } from "@/lib/documents";
+
+/** Strip private fields so renters and public never see them in list. */
+function sanitizeVehicleForList(vehicle: Vehicle): Vehicle {
+  const { roadworthinessDocUrl, licensePlate, vin, ...rest } = vehicle;
+  return rest as Vehicle;
+}
 
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Vehicle[]>>> {
   const store = getStore();
@@ -12,6 +18,11 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   const status = searchParams.get("status") || "active";
   let list = store.vehicles.filter((v) => (status ? v.status === status : true));
   if (hostId) list = list.filter((v) => v.hostId === hostId);
+
+  const session = await getSession();
+  const isOwnList = hostId && session && (session.user.id === hostId || session.user.role === "admin");
+  if (!isOwnList) list = list.map(sanitizeVehicleForList);
+
   return NextResponse.json({ success: true, data: list });
 }
 

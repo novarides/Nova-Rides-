@@ -43,6 +43,9 @@ interface Vehicle {
   id: string;
   title: string;
   currency: string;
+  /** Shown to renter only after booking is confirmed (API enforces). */
+  licensePlate?: string;
+  vin?: string;
 }
 
 interface PaymentConfig {
@@ -88,7 +91,7 @@ export default function BookingDetailPage() {
 
   useEffect(() => {
     if (!booking?.vehicleId) return;
-    fetch("/api/vehicles/" + booking.vehicleId)
+    fetch("/api/vehicles/" + booking.vehicleId, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => d.success && setVehicle(d.data));
   }, [booking?.vehicleId]);
@@ -306,6 +309,23 @@ export default function BookingDetailPage() {
             <dd className="text-[var(--grey-600)]">{vehicle?.currency || "NGN"} {booking.securityDeposit.toLocaleString()}</dd>
           </div>
         </dl>
+
+        {!isHost && (booking.status === "confirmed" || booking.status === "in_progress" || booking.status === "completed") && (vehicle?.licensePlate != null || vehicle?.vin != null) && (
+          <dl className="mt-6 grid grid-cols-2 gap-4 rounded-lg border border-[var(--grey-200)] bg-[var(--grey-100)] p-4">
+            {vehicle?.licensePlate != null && (
+              <div>
+                <dt className="text-xs text-[var(--grey-600)]">License plate</dt>
+                <dd className="mt-1 text-[var(--black)]">{vehicle.licensePlate}</dd>
+              </div>
+            )}
+            {vehicle?.vin != null && (
+              <div>
+                <dt className="text-xs text-[var(--grey-600)]">Vehicle identification number (VIN)</dt>
+                <dd className="mt-1 text-[var(--black)]">{vehicle.vin}</dd>
+              </div>
+            )}
+          </dl>
+        )}
 
         {isPending && !isHost && (
           <p className="mt-6 rounded-lg bg-[var(--accent-light)] border border-[var(--accent)]/30 px-4 py-3 text-sm text-[var(--accent)]">

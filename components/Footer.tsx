@@ -34,11 +34,11 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="mt-auto bg-[var(--black)] text-[var(--white)]">
+    <footer className="mt-auto bg-[var(--footer-bg)] text-[var(--footer-text)]">
       <div className="mx-auto max-w-6xl px-6 md:px-12 pt-14 pb-10">
         <div className="grid grid-cols-1 gap-10 pb-10 border-b border-white/10 mb-8 md:grid-cols-4">
           <div className="md:col-span-2">
-            <Link href="/" className="font-display text-xl font-bold text-[var(--white)] block mb-3">
+            <Link href="/" className="font-display text-xl font-bold text-[var(--footer-text)] block mb-3">
               Nova<span className="text-[var(--accent)]">Rides</span>
             </Link>
             <p className="text-[13px] text-[var(--grey-400)] leading-relaxed max-w-[220px] font-light">
@@ -51,7 +51,7 @@ export function Footer() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-transparent text-[var(--white)] hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 transition"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-transparent text-[var(--footer-text)] hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 transition"
                   title={s.label}
                   aria-label={s.label}
                 >

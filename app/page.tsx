@@ -16,7 +16,7 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero with Lagos skyline */}
-      <section className="relative overflow-hidden bg-[var(--black)] px-6 pt-[72px] pb-14 md:px-12">
+      <section className="relative overflow-hidden bg-[var(--hero-bg)] px-6 pt-[72px] pb-14 md:px-12 min-h-[70vh] flex flex-col justify-center">
         <div className="absolute inset-0">
           <Image
             src={LAGOS_SKYLINE_IMAGE}
@@ -26,22 +26,19 @@ export default async function HomePage() {
             priority
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-[var(--black)]/75" />
+          <div className="absolute inset-0 bg-black/75" />
         </div>
         <div className="absolute top-[-60px] right-[-60px] h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(232,160,32,0.12)_0%,transparent_70%)] pointer-events-none" />
-        <div className="relative z-10">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[var(--accent)] mb-4">
-            Peer-to-peer rentals
-          </p>
-          <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-[var(--white)] md:text-[44px] md:leading-[1.1] md:tracking-[-1.5px]">
-            Find your
-            <br />
-            perfect drive.
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-white md:text-[44px] md:leading-[1.1] md:tracking-[-1.5px]">
+            Find your drive.
           </h1>
-          <p className="mt-2 text-base font-light text-[var(--grey-400)] mb-9">
-            Browse verified vehicles from Nova Rides hosts across Lagos.
+          <p className="mt-2 text-base font-light text-white/80 mb-9 max-w-xl mx-auto">
+            Explore Africa’s largest car sharing marketplace. From daily drivers to dream cars, find the perfect ride for your next adventure.
           </p>
-          <SearchForm />
+          <div className="w-full max-w-xl mx-auto">
+            <SearchForm />
+          </div>
         </div>
       </section>
 

@@ -18,6 +18,9 @@ export interface User {
   verified: boolean;
   emailVerifyToken?: string;
   emailVerifyExpires?: string;
+  /** Password reset – set when user requests reset, cleared after use or expiry */
+  passwordResetToken?: string;
+  passwordResetExpires?: string;
   identityVerified: boolean;
   licenseVerified: boolean;
   /** Government-issued ID document URLs (front/back) */
